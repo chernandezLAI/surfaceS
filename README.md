@@ -1,6 +1,10 @@
 # surfaceS
 surfaceS is a control and visualization tool for surface vibration analysis.
 
+**Author:** [Jérémy Jayet](mailto:jeremy.jayet@epfl.ch)
+
+## State of the project
+
 ## Project
 
 The EPFL – LAI is investigating novel haptic technologies for rendering rich vibrotactile feedback in

@@ -21,20 +21,42 @@
  # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  # SOFTWARE.
  ################################################################################
+"""
+ The ``Oscilloscope`` module
+ ======================
 
-from PyQt5.QtWidgets import QApplication, QLabel
+ *Author:* [Jérémy Jayet](mailto:jeremy.jayet@epfl.ch)
+ *Last modification:* 21.03.2019
 
-from GUI import MainWindow
+ This module is a class to handle an oscilloscope connected with on the LAN.
+ It currently supports only the LeCroy Waverunner LT224.
 
+ """
+
+
+
+BAUD_RATE = 115200
+
+import visa
 import logging as log
+import string
+import numpy as np
 
-if __debug__ :
-    log.basicConfig(level=log.DEBUG)
+class Oscilloscope():
+    def __init__(self, parent=None):
+        pass
 
-log.debug('surfaceS started !')
+    def connect(self, ip:string="128.178.201.59"):
+        # DOES NOT WORK
+        # TODO: fix
+        self.rm = visa.ResourceManager()
+        self.osc = self.rm.open_resource(f'TCPIP::{ip}::INSTR')
+        self.osc.timeout = 5000
+        self.osc.clear()
 
-app = QApplication([])
+        self.osc.write("COMM_HEADER OFF")
+        self.osc.write(r"""vbs 'app.settodefaultsetup' """)
 
-w = MainWindow()
-
-app.exec_()
+    def disconnect(self):
+        self.osc.close()
+        self.rm.close()

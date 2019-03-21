@@ -4,12 +4,16 @@ import sys
 import time
 import numpy as np
 import matplotlib.pyplot as plt
+import logging as log
 
-sys.path.append("C:\\Users\\jjayet\\Desktop\\SEM-PROJ_CNC_scanning\\surfaceS")
+if sys.platform.startswith('win32'):
+    sys.path.append("C:\\Users\\jjayet\\Desktop\\SEM-PROJ_CNC_scanning\\surfaceS")
+elif sys.platform.startswith('linux'):
+    sys.path.append("~/EPFL/Cours/MA2/SEM-PROJ_CNC_scanning/surfaceS")
+    log.debug("linux system")
+
 
 from src import SignalGenerator as SG
-
-import logging as log
 
 class TestSignalGenerator(unittest.TestCase):
     """
@@ -18,12 +22,12 @@ class TestSignalGenerator(unittest.TestCase):
 
     def test_connect(self):
         signalG = SG.SignalGenerator()
-        signalG.connect()
+        signalG.connect(port="/dev/serial/by-id/usb-THURLBY_THANDAR_INSTRUMENTS_TG2512A_DA200678-if00")
         signalG.disconnect()
 
     def test_simple_setup(self):
         signalG = SG.SignalGenerator()
-        signalG.connect()
+        signalG.connect(port="/dev/serial/by-id/usb-THURLBY_THANDAR_INSTRUMENTS_TG2512A_DA200678-if00")
         signalG.setChannel(channel=2)
         signalG.setFrequency(frequency=100)
         signalG.setOutput(state=True)
@@ -33,7 +37,7 @@ class TestSignalGenerator(unittest.TestCase):
 
     def test_sine_setup(self):
         signalG = SG.SignalGenerator()
-        signalG.connect()
+        signalG.connect(port="/dev/serial/by-id/usb-THURLBY_THANDAR_INSTRUMENTS_TG2512A_DA200678-if00")
         signalG.setChannel(channel=1)
         signalG.setFrequency(frequency=440)
         signalG.setWave("SINE", 3)
@@ -48,10 +52,9 @@ class TestSignalGenerator(unittest.TestCase):
 
         for i in range(0, size-1):
             data[i] = 0.03*np.square(i)+0.01*i+1
-            #data[i] = 0
 
         signalG = SG.SignalGenerator()
-        signalG.connect()
+        signalG.connect(port="/dev/serial/by-id/usb-THURLBY_THANDAR_INSTRUMENTS_TG2512A_DA200678-if00")
         signalG.setChannel(channel=1)
         signalG.setWave("ARB", 3)
         signalG.setFrequency(frequency=440)
@@ -68,6 +71,21 @@ class TestSignalGenerator(unittest.TestCase):
         signalG.disconnect()
 
         time.sleep(3)
+
+    def test_burst_mode(self):
+        signalG = SG.SignalGenerator()
+        signalG.connect(port="/dev/serial/by-id/usb-THURLBY_THANDAR_INSTRUMENTS_TG2512A_DA200678-if00")
+        signalG.setChannel(channel=1)
+        signalG.setFrequency(frequency=440)
+        signalG.setWave("ARB", 3)
+        signalG.setBurstMode()
+        signalG.setOutput(state=True)
+        time.sleep(2)
+        for i in range(0,5):
+            signalG.burst()
+            time.sleep(1)
+        signalG.setOutput(state=False)
+        signalG.disconnect()
 
 if __name__ == '__main__':
     log.basicConfig(level=log.DEBUG)

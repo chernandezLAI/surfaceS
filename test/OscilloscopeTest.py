@@ -19,8 +19,26 @@ class TestOscilloscope(unittest.TestCase):
     """
 
     def test_connect(self):
+        log.basicConfig(level=log.DEBUG)
         osc = Osc.Oscilloscope()
         osc.connect()
+        osc.printID()
+        #osc.acquire()
+        #osc.query(r"""vbs? 'return=app.WaitUntilIdle(5)' """)
+        osc.disconnect()
+
+    def test_acquire(self):
+        log.basicConfig(level=log.DEBUG)
+        osc = Osc.Oscilloscope()
+        osc.connect()
+        osc.acquire()
+        osc.disconnect()
+
+    def test_buzzer(self):
+        log.basicConfig(level=log.DEBUG)
+        osc = Osc.Oscilloscope()
+        osc.connect()
+        print(osc.query("BUZZER"))
         osc.disconnect()
 
 if __name__ == '__main__':

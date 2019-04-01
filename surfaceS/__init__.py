@@ -24,17 +24,19 @@
 
 from PyQt5.QtWidgets import QApplication, QLabel
 
-from GUI import MainWindow
+import GUI
 
 import logging as log
 
-if __debug__ :
+if __name__ == '__main__':
     log.basicConfig(level=log.DEBUG)
 
-log.debug('surfaceS started !')
+    log.debug('surfaceS started !')
 
-app = QApplication([])
+    app = QApplication([])
 
-w = MainWindow()
+    gui = GUI.Gui()
 
-app.exec_()
+    gui.show()
+
+    app.exec_()

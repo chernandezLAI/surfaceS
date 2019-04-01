@@ -34,22 +34,32 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QCheckBox, QComboBox, QD
         QSlider, QSpinBox, QStyleFactory, QTableWidget, QTabWidget, QTextEdit,
         QVBoxLayout, QWidget)
 
+import sys
+import logging as log
+
 from SignalGeneratorWidget import SignalGeneratorWidget as signalW
+from ui.mainwindow import Ui_MainWindow as MainWindow
 
 
-class MainWindow(QMainWindow):
+class Gui(QMainWindow, MainWindow):
     def __init__(self, parent=None):
-        super(MainWindow, self).__init__(parent)
+        super(Gui, self).__init__(parent)
+        log.debug('Preparing GUI...')
+        self.setupUi(self)
+
+        log.debug('GUI ready')
+
+
         #self.mMainWindow = QMainWindow()
 
-        self.mCentralWidget = QWidget()
+        #self.mCentralWidget = QWidget()
 
-        self.mSignalGeneratorWidget = signalW()
+        #self.mSignalGeneratorWidget = signalW()
 
-        self.mCentralWidget.setLayout(self.mSignalGeneratorWidget)
+        #self.mCentralWidget.setLayout(self.mSignalGeneratorWidget)
 
-        self.setCentralWidget(self.mCentralWidget)
+        #self.setCentralWidget(self.mCentralWidget)
 
-        self.show()
+        #self.show()
 
 #    def initSignalGeneratorWidget(self, parent=None):

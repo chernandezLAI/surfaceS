@@ -1,2 +1,0 @@
-matplotlib (via Conda)
-PyQt5 (via pip)

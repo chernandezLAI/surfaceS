@@ -26,9 +26,10 @@
  ======================
 
  *Author:* [Jérémy Jayet](mailto:jeremy.jayet@epfl.ch)
- *Last modification:* 28.03.2019
+ *Last modification:* 04.04.2019
 
- This module is a class to handle an oscilloscope connected with on the LAN.
+ This module is a class to handle an oscilloscope connected on the LAN.
+ For now, it uses the VICP protocol based on pyvisa and the NI backend.
 
  Support
  -------
@@ -53,17 +54,17 @@ log.basicConfig(level=log.DEBUG)
 
 class Oscilloscope():
     def __init__(self, parent=None):
-        pass
+        self.nbrSamplesSeconde = 4000000000
+        self.nbrDivVertical = 8
+        self.nbrDivHorizontal = 10
+        self.channelParameters = [{},{},{},{},{}]
 
     def connect(self, ip:string="128.178.201.10"):
-        # DOES NOT WORK
-        # TODO: fix
-
         #visa.log_to_screen()
 
         self.rm = visa.ResourceManager()
-        #self.osc = self.rm.open_resource(f'VICP::{ip}::INSTR', resource_pyclass=MessageBasedResource)
-        self.osc = self.rm.open_resource(f'TCPIP0::{ip}::INSTR')
+        self.osc = self.rm.open_resource(f'VICP::{ip}::INSTR', resource_pyclass=MessageBasedResource)
+        #self.osc = self.rm.open_resource(f'TCPIP0::{ip}::INSTR')
         self.osc.timeout = 5000
         #self.osc.set_visa_attribute(visa.attributes.VI_ATTR_IO_PROT,visa.constants.VI_PROT_4882_STRS)
         #self.osc.io_protocol = 4
@@ -71,6 +72,7 @@ class Oscilloscope():
 
         log.debug("HEADER disabling")
         self.write("COMM_HEADER OFF")
+        self.write("COMM_FORMAT OFF,WORD,BIN")
         log.debug("HEADER disabled")
         self.write(r"""vbs 'app.settodefaultsetup' """)
         #self.osc.read()
@@ -80,7 +82,7 @@ class Oscilloscope():
         log.debug("Getting identifier of the osc")
         r = self.query('*IDN?', 2)
 
-        print(r)
+        log.info(r)
         return r
 
     def write(self, command:string):
@@ -89,42 +91,72 @@ class Oscilloscope():
         log.debug(r)
 
     def query(self, command:string, timeout:int=None):
-        r = self.osc.query(command,timeout)
+        r = self.osc.query(command)
 
         log.info(r)
         return r
 
+    def setTrigger(self,triggerLevel:int=1,triggerDelay:int=0,channel:int=1,triggerMode:string="SINGLE", unitTriggerLevel:string="V"):
+        """
+         Changes trigger parameters
 
-    def acquire(self):
+         .. todo:: Make it better.
+         """
+        self.write(f'C{channel}:TRIG_LEVEL {triggerLevel}{unitTriggerLevel}')
+        self.write(f'TRIG_DELAY {triggerDelay}')
+        self.write(f'TRIG_MODE {triggerMode}')
+
+    def setGrid(self, timeDivision:int=0.0001,voltDivision:int=1,channel:int=1,unitVoltDivision:string="V",unitTimeDivision:string="S"):
+        """
+         Changes grid parameters
+
+         .. todo:: Make it better.
+         """
+        self.channelParameters[channel]['volt_division'] = voltDivision
+        self.channelParameters[channel]['time_division'] = timeDivision
+        self.write(f'C{channel}:VOLT_DIV {voltDivision}{unitVoltDivision}')
+        self.write(f'TIME_DIV {timeDivision}{unitTimeDivision}')
+
+
+    def acquire(self, dataOnly:bool=False, numpyFormat=True, channel:int=1):
         """
          function directly created from
          ``Oscilloscopes Remote Control and Automation Manual``
 
          .. todo:: Make it better.
          """
+        self.osc.write(f'ARM_ACQUISITION')
+        self.osc.write(f'WAIT')
 
-        self.write(r"""vbs 'app.acquisition.triggermode = "stopped" ' """)
-        self.write(r"""vbs 'app.acquisition.trigger.edge.level = 0.435' """)
-        self.write(r"""vbs 'app.acquisition.triggermode = "single" ' """)
-        self.write(r"""vbs 'app.acquisition.horizontal.maximize = "50" ' """)
-        self.write(r"""vbs 'app.measure.clearall ' """)
-        self.write(r"""vbs 'app.measure.clearsweeps ' """)
+        self.osc.write(f'C{channel}:WAVEFORM? DESC')
+        desc = self.osc.read_raw()
+        log.info(f'Wave descriptor : {desc}')
 
-        self.write(r"""vbs 'app.measure.showmeasure = true ' """)
-        self.write(r"""vbs 'app.measure.statson = true ' """)
-        self.write(r"""vbs 'app.measure.p1.view = true ' """)
-        self.write(r"""vbs 'app.measure.p1.paramengine = "1" ' """)
-        self.write(r"""vbs 'app.measure.p1.source1 = "C1" ' """)
+        self.osc.write(f'C{channel}:WAVEFORM? TEXT')
+        text = self.osc.read_raw()
+        log.info(f'Wave text : {text}')
 
-        for i in range(0,10):
-            r = self.query(r"""vbs? 'return=app.acquisition.acquire( 0.1 , True )' """)
-            r = self.query(r"""vbs? 'return=app.WaitUntilIdle(5)' """)
-            if r==0:
-                print(f'Time out from WaitUntilIdle, return = {r}')
+        self.osc.write(f'C{channel}:WAVEFORM? TIME')
+        time = self.osc.read_raw()
+        log.info(f'Wave time : {time}')
 
-        variable = self.query(r"""vbs? 'return=app.measure.p1.out.result.value' """)
-        print(f'variable = {variable}')
+        data1 = self.osc.query_binary_values(f'C{channel}:WAVEFORM? DAT1', datatype='h', is_big_endian=False, header_fmt='ieee')
+        log.info(f'Wave data 1 : {data1}')
 
+        if numpyFormat :
+            i = 0
+            data = np.empty(len(data1), dtype=np.int16)
+            for sample in data1:
+                data[i]=sample
+                i+=1
+        else:
+            data = data1
+
+        if dataOnly :
+            return data
+        else:
+            res = { "description" : desc, "text": text, "time" : time, "data" : data, "channelParameters":self.channelParameters[channel] }
+            return res
 
     def disconnect(self):
         self.osc.close()

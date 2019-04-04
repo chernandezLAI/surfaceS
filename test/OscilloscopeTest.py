@@ -3,6 +3,8 @@ import unittest
 import sys
 import time
 import logging as log
+import numpy as np
+import matplotlib.pyplot as plt
 
 if sys.platform.startswith('win32'):
     sys.path.append("C:\\Users\\jjayet\\Desktop\\SEM-PROJ_CNC_scanning\\surfaceS")
@@ -11,7 +13,7 @@ elif sys.platform.startswith('linux'):
     log.debug("linux system")
 
 
-from src import Oscilloscope as Osc
+from surfaceS import Oscilloscope as Osc
 
 class TestOscilloscope(unittest.TestCase):
     """
@@ -23,22 +25,22 @@ class TestOscilloscope(unittest.TestCase):
         osc = Osc.Oscilloscope()
         osc.connect()
         osc.printID()
-        #osc.acquire()
-        #osc.query(r"""vbs? 'return=app.WaitUntilIdle(5)' """)
         osc.disconnect()
 
     def test_acquire(self):
         log.basicConfig(level=log.DEBUG)
         osc = Osc.Oscilloscope()
         osc.connect()
-        osc.acquire()
-        osc.disconnect()
-
-    def test_buzzer(self):
-        log.basicConfig(level=log.DEBUG)
-        osc = Osc.Oscilloscope()
-        osc.connect()
-        print(osc.query("BUZZER"))
+        osc.setGrid()
+        osc.setTrigger(triggerLevel=0.75)
+        data = osc.acquire()
+        time.sleep(5)
+        plt.subplot(1,2,1)
+        plt.plot(data["data"])
+        fftData = np.fft.fft(data["data"])
+        plt.subplot(1,2,2)
+        plt.plot(fftData)
+        plt.show()
         osc.disconnect()
 
 if __name__ == '__main__':

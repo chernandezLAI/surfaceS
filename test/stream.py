@@ -3,10 +3,10 @@
 
 Stream g-code to grbl controller
 
-This script differs from the simple_stream.py script by 
+This script differs from the simple_stream.py script by
 tracking the number of characters in grbl's serial read
 buffer. This allows grbl to fetch the next line directly
-from the serial buffer and does not have to wait for a 
+from the serial buffer and does not have to wait for a
 response from the computer. This effectively adds another
 buffer layer to prevent buffer starvation.
 
@@ -17,7 +17,7 @@ CHANGELOG:
 - 20140714: Updated baud rate to 115200. Added a settings
   write mode via simple streaming method. MIT-licensed.
 
-TODO: 
+TODO:
 - Add realtime control commands during streaming.
 
 ---------------------
@@ -65,10 +65,10 @@ parser.add_argument('gcode_file', type=argparse.FileType('r'),
         help='g-code filename to be streamed')
 parser.add_argument('device_file',
         help='serial device path')
-parser.add_argument('-q','--quiet',action='store_true', default=False, 
+parser.add_argument('-q','--quiet',action='store_true', default=False,
         help='suppress output text')
-parser.add_argument('-s','--settings',action='store_true', default=False, 
-        help='settings write mode')        
+parser.add_argument('-s','--settings',action='store_true', default=False,
+        help='settings write mode')
 parser.add_argument('-c','--check',action='store_true', default=False,
         help='stream in check mode')
 args = parser.parse_args()
@@ -77,12 +77,12 @@ args = parser.parse_args()
 # TODO: Need to track down why this doesn't restart consistently before a release.
 def send_status_query():
     s.write('?')
-    
+
 def periodic_timer() :
     while is_run:
       send_status_query()
       time.sleep(REPORT_INTERVAL)
-  
+
 
 # Initialize
 s = serial.Serial(args.device_file,BAUD_RATE)
@@ -131,7 +131,7 @@ if settings_mode:
     # in this manner since the EEPROM accessing cycles shut-off the serial interrupt.
     print "SETTINGS MODE: Streaming", args.gcode_file.name, " to ", args.device_file
     for line in f:
-        l_count += 1 # Iterate line counter    
+        l_count += 1 # Iterate line counter
         # l_block = re.sub('\s|\(.*?\)','',line).upper() # Strip comments/spaces/new line and capitalize
         l_block = line.strip() # Strip all EOL characters for consistency
         if verbose: print "SND>"+str(l_count)+": \"" + l_block + "\""
@@ -147,12 +147,12 @@ if settings_mode:
                 break
             else:
                 print "    MSG: \""+grbl_out+"\""
-else:    
+else:
     # Send g-code program via a more agressive streaming protocol that forces characters into
     # Grbl's serial read buffer to ensure Grbl has immediate access to the next g-code command
     # rather than wait for the call-response serial protocol to finish. This is done by careful
-    # counting of the number of characters sent by the streamer to Grbl and tracking Grbl's 
-    # responses, such that we never overflow Grbl's serial read buffer. 
+    # counting of the number of characters sent by the streamer to Grbl and tracking Grbl's
+    # responses, such that we never overflow Grbl's serial read buffer.
     g_count = 0
     c_line = []
     for line in f:
@@ -160,7 +160,7 @@ else:
         l_block = re.sub('\s|\(.*?\)','',line).upper() # Strip comments/spaces/new line and capitalize
         # l_block = line.strip()
         c_line.append(len(l_block)+1) # Track number of characters in grbl serial read buffer
-        grbl_out = '' 
+        grbl_out = ''
         while sum(c_line) >= RX_BUFFER_SIZE-1 | s.inWaiting() :
             out_temp = s.readline().strip() # Wait for grbl response
             if out_temp.find('ok') < 0 and out_temp.find('error') < 0 :
@@ -195,7 +195,7 @@ if check_mode :
         print "CHECK PASSED: No errors found in g-code program.\n"
 else :
    print "WARNING: Wait until Grbl completes buffered g-code blocks before exiting."
-   raw_input("  Press <Enter> to exit and disable Grbl.") 
+   raw_input("  Press <Enter> to exit and disable Grbl.")
 
 # Close file and serial port
 f.close()

@@ -35,3 +35,47 @@ The final report will contain the following points:
 - The functional diagram, the operational manual, and the source code of the final implementation.
 
 Supervisors: Camilo Hernandez M., Paolo Germano - Professor: Yves Perriard
+
+## GRBL controller parameters
+´´
+CNCjs 1.9.15 [Grbl]
+Connected to COM5 with a baud rate of 115200
+Grbl 1.1g ['$' for help]
+client> $$
+[MSG:'$H'|'$X' to unlock]
+$0=10 (Step pulse time, microseconds)
+$1=200 (Step idle delay, milliseconds)
+$2=0 (Step pulse invert, mask)
+$3=0 (Step direction invert, mask)
+$4=1 (Invert step enable pin, boolean)
+$5=1 (Invert limit pins, boolean)
+$6=0 (Invert probe pin, boolean)
+$10=1 (Status report options, mask)
+$11=0.010 (Junction deviation, millimeters)
+$12=0.002 (Arc tolerance, millimeters)
+$13=0 (Report in inches, boolean)
+$20=0 (Soft limits enable, boolean)
+$21=1 (Hard limits enable, boolean)
+$22=1 (Homing cycle enable, boolean)
+$23=1 (Homing direction invert, mask)
+$24=120.000 (Homing locate feed rate, mm/min)
+$25=900.000 (Homing search seek rate, mm/min)
+$26=250 (Homing switch debounce delay, milliseconds)
+$27=2.000 (Homing switch pull-off distance, millimeters)
+$30=1000 (Maximum spindle speed, RPM)
+$31=0 (Minimum spindle speed, RPM)
+$32=0 (Laser-mode enable, boolean)
+$100=133.333 (X-axis travel resolution, step/mm)
+$101=133.333 (Y-axis travel resolution, step/mm)
+$102=133.333 (Z-axis travel resolution, step/mm)
+$110=3000.000 (X-axis maximum rate, mm/min)
+$111=3000.000 (Y-axis maximum rate, mm/min)
+$112=3000.000 (Z-axis maximum rate, mm/min)
+$120=10.000 (X-axis acceleration, mm/sec^2)
+$121=10.000 (Y-axis acceleration, mm/sec^2)
+$122=10.000 (Z-axis acceleration, mm/sec^2)
+$130=422.000 (X-axis maximum travel, millimeters)
+$131=131.000 (Y-axis maximum travel, millimeters)
+$132=142.000 (Z-axis maximum travel, millimeters)
+ok
+´´

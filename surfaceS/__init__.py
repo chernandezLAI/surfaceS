@@ -22,13 +22,13 @@
  # SOFTWARE.
  ################################################################################
 
-from PyQt5.QtWidgets import QApplication, QLabel
-
-import GUI
-
-import logging as log
-
 if __name__ == '__main__':
+    from PyQt5.QtWidgets import QApplication, QLabel
+
+    import GUI
+
+    import logging as log
+
     log.basicConfig(level=log.DEBUG)
 
     log.debug('surfaceS started !')

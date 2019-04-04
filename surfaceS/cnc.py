@@ -30,18 +30,87 @@
 
  """
 
+RX_BUFFER_SIZE = 128
+BAUD_RATE = 115200
+ENABLE_STATUS_REPORTS = True
+REPORT_INTERVAL = 1.0 # seconds
+EOLStr ='\n'
+
 import threading
 import time
+from asyncio import Queue
 
-class CNC(threading.Thread):
+class Cnc(threading.Thread):
     """docstring for ."""
     def __init__(self, arg):
         super(self).__init__()
-        #threading.Thread.__init__(self)
         self.threadID = threadID
         self.name = name
+        self.commandQueue = Queue()
+        #self.queueLock = threading.Lock()
+        self.running = False
 
     def run(self):
-      print "Starting " + self.name
-      print_time(self.name, 5, self.counter)
-      print "Exiting " + self.name  
+        self.running = True
+
+        # Initialize
+        cnc = serial.Serial(args.device_file,BAUD_RATE)
+
+        # Wake up grbl
+        log.info("Initializing Grbl...")
+        cnc.write("\r\n\r\n")
+
+        # Wait for grbl to initialize and flush startup text in serial input
+        time.sleep(2)
+        cnc.flushInput()
+
+        while running :
+            #self.queueLock.acquire()
+            while self.commandQueue.empty() == False :
+                cmd = self.commandQueue.get().strip() + EOLStr
+                cnc.write(cmd.encode())
+
+                out = cnc.readline().strip() # Wait for grbl response
+                if out.find('ok') < 0 and out.find('error') < 0 :
+                    log.info('MSG: {out}') # Debug response
+                else :
+                    if out.find('error') >= 0 :
+                        log.error('ERROR: {out}')
+
+    def periodic_timer() :
+        while self.running:
+          send_status_query()
+          time.sleep(REPORT_INTERVAL)
+
+    def sendCommand(self, command:string="?"):
+        commandQueue.put(command)
+        #self.queueLock.release()
+        pass
+
+    def jog(self, axis:string="x", distance:float=1):
+        self.sendCommand("G91")
+        axis.capitalize()
+        self.sendCommand(f'G0 {axis}{distance}')
+
+    def goTo(self, x:float=9999,y:float=9999,z:float=9999, feedrate:int=1000):
+        self.sendCommand("G90")
+        command = " "
+        if x != 9999:
+            command += f'X{x} '
+
+        if y != 9999:
+            command += f'Y{y} '
+
+        if z != 9999:
+            command += f'Z{z} '
+
+        command += f'F{feedrate}'
+        self.sendCommand(f'G1{command}')
+
+    def home(self):
+        self.sendCommand("$H")
+    def unlock(self):
+        self.sendCommand("$X")
+
+    def updateStatusCallback(self, cb=self.printStatus):
+        statusCallback = cb

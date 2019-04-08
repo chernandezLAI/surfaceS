@@ -89,7 +89,7 @@ class Oscilloscope():
         log.info(r)
         return r
 
-    def setTrigger(self,triggerLevel:int=1,triggerDelay:int=0,channel:int=1,triggerMode:string="SINGLE", unitTriggerLevel:string="V"):
+    def setTrigger(self,triggerLevel:float=1,triggerDelay:float=0,channel:int=1,triggerMode:string="SINGLE", unitTriggerLevel:string="V"):
         """
          Changes trigger parameters
 
@@ -99,7 +99,7 @@ class Oscilloscope():
         self.write(f'TRIG_DELAY {triggerDelay}')
         self.write(f'TRIG_MODE {triggerMode}')
 
-    def setGrid(self, timeDivision:int=0.0001,voltDivision:int=1,channel:int=1,unitVoltDivision:string="V",uni tTimeDivision:string="S"):
+    def setGrid(self, timeDivision:int=0.0001,voltDivision:int=1,channel:int=1,unitVoltDivision:string="V",unitTimeDivision:string="S"):
         """
          Changes grid parameters
 
@@ -119,7 +119,7 @@ class Oscilloscope():
 
          .. todo:: Make it better.
          """
-        if readOnly=False:
+        if readOnly==False:
             self.osc.write(f'ARM_ACQUISITION')
             self.osc.write(f'WAIT')
 

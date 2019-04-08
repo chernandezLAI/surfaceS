@@ -26,7 +26,7 @@
  ======================
 
  *Author:* [Jérémy Jayet](mailto:jeremy.jayet@epfl.ch)
- *Last modification:* 04.04.2019
+ *Last modification:* 08.04.2019
 
  This module is a class to handle an oscilloscope connected on the LAN.
  For now, it uses the VICP protocol based on pyvisa and the NI backend.
@@ -37,8 +37,6 @@
  + LeCroy Wavesurfer 3024.
 
  """
-
-
 
 BAUD_RATE = 115200
 PORT = 1861
@@ -64,10 +62,7 @@ class Oscilloscope():
 
         self.rm = visa.ResourceManager()
         self.osc = self.rm.open_resource(f'VICP::{ip}::INSTR', resource_pyclass=MessageBasedResource)
-        #self.osc = self.rm.open_resource(f'TCPIP0::{ip}::INSTR')
         self.osc.timeout = 5000
-        #self.osc.set_visa_attribute(visa.attributes.VI_ATTR_IO_PROT,visa.constants.VI_PROT_4882_STRS)
-        #self.osc.io_protocol = 4
         self.osc.clear()
 
         log.debug("HEADER disabling")
@@ -75,10 +70,8 @@ class Oscilloscope():
         self.write("COMM_FORMAT OFF,WORD,BIN")
         log.debug("HEADER disabled")
         self.write(r"""vbs 'app.settodefaultsetup' """)
-        #self.osc.read()
 
     def printID(self):
-        #self.osc.write('AUTO_SETUP')
         log.debug("Getting identifier of the osc")
         r = self.query('*IDN?', 2)
 
@@ -106,7 +99,7 @@ class Oscilloscope():
         self.write(f'TRIG_DELAY {triggerDelay}')
         self.write(f'TRIG_MODE {triggerMode}')
 
-    def setGrid(self, timeDivision:int=0.0001,voltDivision:int=1,channel:int=1,unitVoltDivision:string="V",unitTimeDivision:string="S"):
+    def setGrid(self, timeDivision:int=0.0001,voltDivision:int=1,channel:int=1,unitVoltDivision:string="V",uni tTimeDivision:string="S"):
         """
          Changes grid parameters
 
@@ -116,17 +109,22 @@ class Oscilloscope():
         self.channelParameters[channel]['time_division'] = timeDivision
         self.write(f'C{channel}:VOLT_DIV {voltDivision}{unitVoltDivision}')
         self.write(f'TIME_DIV {timeDivision}{unitTimeDivision}')
+        self.write(f'C{channel}:TRACE ON')
 
 
-    def acquire(self, dataOnly:bool=False, numpyFormat=True, channel:int=1):
+    def acquire(self, dataOnly:bool=False, numpyFormat=True, channel:int=1, forceAcquisition:bool=False, readOnly:bool=False):
         """
          function directly created from
          ``Oscilloscopes Remote Control and Automation Manual``
 
          .. todo:: Make it better.
          """
-        self.osc.write(f'ARM_ACQUISITION')
-        self.osc.write(f'WAIT')
+        if readOnly=False:
+            self.osc.write(f'ARM_ACQUISITION')
+            self.osc.write(f'WAIT')
+
+        if forceAcquisition:
+            self.osc.write(f'FORCE_TRIGGER')
 
         self.osc.write(f'C{channel}:WAVEFORM? DESC')
         desc = self.osc.read_raw()

@@ -43,6 +43,22 @@ class TestOscilloscope(unittest.TestCase):
         plt.show()
         osc.disconnect()
 
+    def test_acquire_oscillo_minh(self):
+        log.basicConfig(level=log.DEBUG)
+        osc = Osc.Oscilloscope()
+        osc.connect()
+        osc.setGrid(timeDivision=0.0001,voltDivision=0.2,channel=1,unitVoltDivision="V",unitTimeDivision="S")
+        osc.setTrigger(triggerLevel=-10.2)
+        data = osc.acquire(forceAcquisition=True)
+        time.sleep(5)
+        plt.subplot(1,2,1)
+        plt.plot(data["data"])
+        fftData = np.fft.fft(data["data"])
+        plt.subplot(1,2,2)
+        plt.plot(fftData)
+        plt.show()
+        osc.disconnect()
+
 if __name__ == '__main__':
     log.basicConfig(level=log.DEBUG)
     unittest.main()

@@ -94,7 +94,7 @@ class Cnc(threading.Thread):
 
     def goTo(self, x:float=9999,y:float=9999,z:float=9999, feedrate:int=1000):
         self.sendCommand("G90")
-        command = " "
+        command = " " # Do not delete the whitespace !
         if x != 9999:
             command += f'X{x} '
 

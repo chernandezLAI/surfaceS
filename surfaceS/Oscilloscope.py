@@ -26,7 +26,7 @@
  ======================
 
  *Author:* [Jérémy Jayet](mailto:jeremy.jayet@epfl.ch)
- *Last modification:* 08.04.2019
+ *Last modification:* 11.04.2019
 
  This module is a class to handle an oscilloscope connected on the LAN.
  For now, it uses the VICP protocol based on pyvisa and the NI backend.
@@ -48,7 +48,7 @@ import logging as log
 import string
 import numpy as np
 
-log.basicConfig(level=log.DEBUG)
+#log.basicConfig(level=log.DEBUG)
 
 class Oscilloscope():
     def __init__(self, parent=None):
@@ -58,8 +58,23 @@ class Oscilloscope():
         self.channelParameters = [{},{},{},{},{}]
 
     def connect(self, ip:string="128.178.201.10"):
-        #visa.log_to_screen()
+        """
+         Connect to the digital signal oscilloscope
 
+         :param ip: The IP adress of the oscilloscope (default: 128.178.201.10)
+         :type ip: string
+
+         :Example:
+
+         >>> osc = Osc.Oscilloscope()
+         >>> osc.connect()
+
+         .. seealso:: disconnect()
+         .. warning:: Only works with LeCroy Wavesurfer 3024.
+         .. todo:: Extend to other protocol and/or instruments
+         """
+
+        #visa.log_to_screen()
         self.rm = visa.ResourceManager()
         self.osc = self.rm.open_resource(f'VICP::{ip}::INSTR', resource_pyclass=MessageBasedResource)
         self.osc.timeout = 5000
@@ -72,6 +87,21 @@ class Oscilloscope():
         self.write(r"""vbs 'app.settodefaultsetup' """)
 
     def printID(self):
+        """
+         Returns the identification string of the instrument (by politely asking it).
+         :return: identification string
+         :rtype: string
+
+         :Example:
+
+         >>> osc = Osc.Oscilloscope()
+         >>> osc.connect()
+         >>> osc.printID()
+
+         .. todo:: update example
+
+         """
+
         log.debug("Getting identifier of the osc")
         r = self.query('*IDN?', 2)
 
@@ -79,6 +109,24 @@ class Oscilloscope():
         return r
 
     def write(self, command:string):
+        """
+         Send a command to the instrument and blocks until the command has been processed.
+
+         No validation of any sort will be done. Use it at your own risk.
+
+         :param command: Command to send
+         :type command: string
+
+         :Example:
+
+         >>> osc = Osc.Oscilloscope()
+         >>> osc.connect()
+         >>> osc.write("COMM_HEADER OFF")
+
+         .. note:: This is a blocking call.
+         .. todo:: Extend to work with other DSO
+         """
+
         self.osc.write(command)
         r = self.query(r"""vbs? 'return=app.WaitUntilIdle(5)' """)
         log.debug(r)
@@ -93,18 +141,54 @@ class Oscilloscope():
         """
          Changes trigger parameters
 
-         .. todo:: Make it better.
+         :param triggerLevel: Level of the trigger
+         :type triggerLevel: float
+         :param triggerDelay: Delay of the trigger. The unit is the one
+         specified in the setGrid() method.
+         :type triggerDelay: string
+         :param channel: Channel on which you need to set the trigger
+         :type command: int
+         :param triggerMode: Mode of the trigger. Either `AUTO`, `NORMAL`,
+         `SINGLE` or `STOP`.
+         :type triggerMode: string
+         :param unitTriggerLevel: Unit for the trigger level. See setGrid() for
+         available options.
+         :type unitTriggerLevel: string
+
+         .. seealso:: setGrid()
+         .. todo:: Make more tests, recorde trigger state to use this info in
+         the acquire method.
          """
         self.write(f'C{channel}:TRIG_LEVEL {triggerLevel}{unitTriggerLevel}')
         self.write(f'TRIG_DELAY {triggerDelay}')
         self.write(f'TRIG_MODE {triggerMode}')
 
-    def setGrid(self, timeDivision:int=0.0001,voltDivision:int=1,channel:int=1,unitVoltDivision:string="V",unitTimeDivision:string="S"):
+    def setGrid(self, timeDivision:float=0.0001,voltDivision:float=1.0,channel:int=1,unitVoltDivision:string="V",unitTimeDivision:string="S"):
         """
          Changes grid parameters
 
-         .. todo:: Make it better.
+         :param timeDivision: The time per division.
+         :type timeDivision: float
+         :param voltDivision: The voltage per division.
+         :type voltDivision: float
+         :param channel: The channel on which the modification must be applied.
+         Has only effect on the voltage per division parameter.
+         :type channel: int
+         :param unitVoltDivision: Unit to apply to voltDivision (V, MV, UV)
+         :type unitVoltDivision: string
+         :param unitTimeDivision: Unit to apply to timeDivision (S, MS, US, NS)
+         :type unitTimeDivision: string
+
+         :Example:
+
+         To be added
+
+         .. seealso::
+         .. warning::
+         .. note::
+         .. todo:: Add an example
          """
+
         self.channelParameters[channel]['volt_division'] = voltDivision
         self.channelParameters[channel]['time_division'] = timeDivision
         self.write(f'C{channel}:VOLT_DIV {voltDivision}{unitVoltDivision}')
@@ -112,13 +196,49 @@ class Oscilloscope():
         self.write(f'C{channel}:TRACE ON')
 
 
-    def acquire(self, dataOnly:bool=False, numpyFormat=True, channel:int=1, forceAcquisition:bool=False, readOnly:bool=False):
+    def acquire(self, dataOnly:bool=False, numpyFormat:bool=True, channel:int=1, forceAcquisition:bool=False, readOnly:bool=False):
         """
-         function directly created from
-         ``Oscilloscopes Remote Control and Automation Manual``
+        Acquires the data on the Oscilloscope.
 
-         .. todo:: Make it better.
+        The function returns a dictionnary containing the different informations
+        about the waveform. It contains the following keys:
+
+        + "description":
+        + "text":
+        + "time":
+        + "data":
+        + "channelParameters":
+
+         :param dataOnly: If true, the function returns only the data block
+         without any other information (not wrapped into a dictionnary)
+         :type dataOnly: bool
+         :param numpyFormat: If true, returns the data in a int16 numpy format.
+         :type numpyFormat: bool
+         :param channel: Channel to acquire.
+         :type channel: int
+         :param forceAcquisition: Manually force an acquisiion. Does not wait on
+         the trigger.
+         :type forceAcquisition: bool
+         :param readOnly: Only reads the content of the buffer without arming
+         the acquisiton
+         :type readOnly: bool
+
+         :return: A dictionnary containing the informations or an array with the
+         datapoints
+         :rtype: dictionnary or array
+
+         :Example:
+
+         To be added
+
+         .. seealso::
+         .. warning:: This function need more testing and maybe a refactoring of
+         its parameters. Its mode of operation should be atomized in the future
+         but this might stay to provide legacy compatibility.
+         .. note::
+         .. todo:: Atomize.
          """
+
         if readOnly==False:
             self.osc.write(f'ARM_ACQUISITION')
             self.osc.write(f'WAIT')

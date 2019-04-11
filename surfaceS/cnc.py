@@ -25,6 +25,9 @@
  The ``cnc`` module
  ======================
 
+ *Author:* [Jérémy Jayet](mailto:jeremy.jayet@epfl.ch)
+ *Last modification:* 11.04.2019
+
  This module controls the CNC. It provides a useful interface to send commands
  to the cnc while keeping the control asynchronous.
 

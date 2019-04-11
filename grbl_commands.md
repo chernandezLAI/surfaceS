@@ -1,4 +1,4 @@
-#GRBL commands
+# GRBL commands
 
-`$X` to unlock
-`$H` to home
++ `$X` to unlock
++ `$H` to home

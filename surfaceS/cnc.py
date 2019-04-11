@@ -39,63 +39,94 @@ ENABLE_STATUS_REPORTS = True
 REPORT_INTERVAL = 1.0 # seconds
 EOLStr ='\n'
 
+DEVICE_DEFAULT = "COM5"
+
 import threading
 import time
-from asyncio import Queue
+import queue
+import logging as log
+import string
+import serial
+
+# Experimental values
+SOFT_LIMIT_X_P = -47.0
+SOFT_LIMIT_X_N = -420.0
+SOFT_LIMIT_Y_P = -2.0
+SOFT_LIMIT_Y_N = -582.0
+SOFT_LIMIT_Z_P = -2.0
+SOFT_LIMIT_Z_N = -119.0
 
 class Cnc(threading.Thread):
-    """docstring for ."""
-    def __init__(self, arg):
-        super(self).__init__()
+    def __init__(self, threadID=0, name="cnc_controller"):
+        log.basicConfig(level=log.DEBUG)
+        super(Cnc, self).__init__()
         self.threadID = threadID
         self.name = name
-        self.commandQueue = Queue()
-        #self.queueLock = threading.Lock()
+        self.commandQueue = queue.Queue()
         self.running = False
+        self.deviceFile = DEVICE_DEFAULT
+        self.cncLock = threading.Lock()
+        self.setPositionEvent(threading.Event(), 0, 0)
+        self.x = 9999
+        self.y = 9999
+
+        def printStatus(state, x, y, z):
+            print(f'{state}, {x}, {y}, {z}')
+        self.statusCallback = printStatus
 
     def run(self):
+        self.cncLock.acquire()
         self.running = True
 
         # Initialize
-        cnc = serial.Serial(args.device_file,BAUD_RATE)
+        self.cnc = serial.Serial(self.deviceFile,BAUD_RATE)
+
+        self.updaterThread = threading.Thread(target=self.periodic_timer)
+        self.updaterThread.start()
 
         # Wake up grbl
         log.info("Initializing Grbl...")
-        cnc.write("\r\n\r\n")
+        cmd = "\r\n\r\n"
+        self.cnc.write(cmd.encode())
 
         # Wait for grbl to initialize and flush startup text in serial input
         time.sleep(2)
-        cnc.flushInput()
+        self.cnc.flushInput()
+        self.cncLock.release()
 
-        while running :
-            #self.queueLock.acquire()
-            while self.commandQueue.empty() == False :
-                cmd = self.commandQueue.get().strip() + EOLStr
-                cnc.write(cmd.encode())
+        while self.running :
+            cmd = self.commandQueue.get().strip() + EOLStr
+            if self.running == False:
+                break
+            self.cncLock.acquire()
+            self.cnc.write(cmd.encode())
 
-                out = cnc.readline().strip() # Wait for grbl response
-                if out.find('ok') < 0 and out.find('error') < 0 :
-                    log.info('MSG: {out}') # Debug response
-                else :
-                    if out.find('error') >= 0 :
-                        log.error('ERROR: {out}')
+            out = str(self.cnc.readline().strip()) # Wait for grbl response
+            if out.find('ok') >= 0 :
+                log.debug(f'MSG: {out}') # Debug response
+            elif out.find('error') >= 0 :
+                log.error(f'ERROR: {out}')
+            else:
+                log.info(out)
+            self.cncLock.release()
 
-    def periodic_timer() :
+        self.cnc.close()
+    def periodic_timer(self):
         while self.running:
-          send_status_query()
+          self.sendStatusQuery()
           time.sleep(REPORT_INTERVAL)
 
     def sendCommand(self, command:string="?"):
-        commandQueue.put(command)
+        self.commandQueue.put(command)
         #self.queueLock.release()
         pass
 
     def jog(self, axis:string="x", distance:float=1):
         self.sendCommand("G91")
         axis.capitalize()
-        self.sendCommand(f'G0 {axis}{distance}')
+        self.sendCommand(f'$J={axis}{distance} F1000')
 
-    def goTo(self, x:float=9999,y:float=9999,z:float=9999, feedrate:int=1000):
+    def goTo(self, x:float=9999,y:float=9999,z:float=9999, feedrate:int=1000, event:threading.Event=None):
         self.sendCommand("G90")
         command = " " # Do not delete the whitespace !
         if x != 9999:
@@ -108,12 +139,66 @@ class Cnc(threading.Thread):
             command += f'Z{z} '
 
         command += f'F{feedrate}'
-        self.sendCommand(f'G1{command}')
+        self.sendCommand(f'G53 G1{command}') # Uses machine coordinates !!!!!!!!!!!
+
+        if event != None:
+            self.setPositionEvent(event, x, y)
 
     def home(self):
         self.sendCommand("$H")
     def unlock(self):
         self.sendCommand("$X")
 
-    def updateStatusCallback(self, cb=self.printStatus):
-        statusCallback = cb
+    def connect(self, device:string):
+        self.deviceFile = device
+
+    def stop(self):
+        self.running = False
+        self.sendCommand("?")
+
+    def __del__(self):
+        self.stop()
+
+    def updateStatusCallback(self, cb):
+        self.statusCallback = cb
+
+    def setPositionEvent(self, event:threading.Event, X, Y):
+        self.positionEvent = event
+        self.targetX = X
+        self.targetY = Y
+
+    def getState(self):
+        return self.state
+
+    def sendStatusQuery(self):
+        self.cncLock.acquire()
+        cmd="?"
+        self.cnc.flushInput()
+        self.cnc.write(cmd.encode())
+        out = str(self.cnc.readline().strip()) # Wait for grbl response
+        self.cncLock.release()
+        log.debug(f'Status query: {out}')
+
+        # Parsing
+        idxBegin = out.find("<")
+        idxEnd = out.find(">", idxBegin)
+        if (idxBegin >= 0) and (idxEnd >= 0):
+            out = out[idxBegin:idxEnd]
+            log.debug("Parsing...")
+            pars1 = out.split("|")
+            pars2 = pars1[1].split(":")
+            pars3 = pars2[1].split(",")
+            s = pars1[0][1:].upper()
+            X=float(pars3[0])
+            Y=float(pars3[1])
+            Z=float(pars3[2])
+            self.statusCallback(state=s, x=X, y=Y,z=Y)
+            self.state = s
+            self.x = X
+            self.y = Y
+            self.z = Z
+
+        diffX = self.targetX - self.x
+        diffY = self.targetY - self.y
+        if (diffX < 0.5) and (diffY < 0.5):
+            self.positionEvent.set()

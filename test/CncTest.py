@@ -13,18 +13,21 @@ elif sys.platform.startswith('linux'):
     log.debug("linux system")
 
 
-from surfaceS import Cnc
+from surfaceS import cnc
 
-class TestOscilloscope(unittest.TestCase):
+class TestCnc(unittest.TestCase):
     """
     Our basic test class
     """
 
-    def test_connect(self):
-
-
-    def test_simple_movements(self):
-
+    def test_simple_homing(self):
+        c = cnc.Cnc()
+        c.connect("COM5")
+        c.start()
+        c.home()
+        time.sleep(20)
+        c.sendStatusQuery()
+        c.stop()
 
 if __name__ == '__main__':
     log.basicConfig(level=log.DEBUG)

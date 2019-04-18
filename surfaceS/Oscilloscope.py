@@ -23,7 +23,7 @@
  ################################################################################
 """
  The ``Oscilloscope`` module
- ======================
+ ===========================
 
  *Author:* [Jérémy Jayet](mailto:jeremy.jayet@epfl.ch)
  *Last modification:* 11.04.2019
@@ -89,6 +89,7 @@ class Oscilloscope():
     def printID(self):
         """
          Returns the identification string of the instrument (by politely asking it).
+
          :return: identification string
          :rtype: string
 
@@ -143,16 +144,13 @@ class Oscilloscope():
 
          :param triggerLevel: Level of the trigger
          :type triggerLevel: float
-         :param triggerDelay: Delay of the trigger. The unit is the one
-         specified in the setGrid() method.
+         :param triggerDelay: Delay of the trigger. The unit is the one specified in the setGrid() method.
          :type triggerDelay: string
          :param channel: Channel on which you need to set the trigger
          :type command: int
-         :param triggerMode: Mode of the trigger. Either `AUTO`, `NORMAL`,
-         `SINGLE` or `STOP`.
+         :param triggerMode: Mode of the trigger. Either `AUTO`, `NORMAL`, `SINGLE` or `STOP`.
          :type triggerMode: string
-         :param unitTriggerLevel: Unit for the trigger level. See setGrid() for
-         available options.
+         :param unitTriggerLevel: Unit for the trigger level. See setGrid() for available options.
          :type unitTriggerLevel: string
 
          .. seealso:: setGrid()
@@ -209,35 +207,29 @@ class Oscilloscope():
         + "data":
         + "channelParameters":
 
-         :param dataOnly: If true, the function returns only the data block
-         without any other information (not wrapped into a dictionnary)
-         :type dataOnly: bool
-         :param numpyFormat: If true, returns the data in a int16 numpy format.
-         :type numpyFormat: bool
-         :param channel: Channel to acquire.
-         :type channel: int
-         :param forceAcquisition: Manually force an acquisiion. Does not wait on
-         the trigger.
-         :type forceAcquisition: bool
-         :param readOnly: Only reads the content of the buffer without arming
-         the acquisiton
-         :type readOnly: bool
+        These can be retrieved from a dictionnary
 
-         :return: A dictionnary containing the informations or an array with the
-         datapoints
-         :rtype: dictionnary or array
+        :param dataOnly: If true, the function returns only the data block without any other information (not wrapped into a dictionnary)
+        :type dataOnly: bool
+        :param numpyFormat: If true, returns the data in a int16 numpy format.
+        :type numpyFormat: bool
+        :param channel: Channel to acquire.
+        :type channel: int
+        :param forceAcquisition: Manually force an acquisiion. Does not wait on the trigger.
+        :type forceAcquisition: bool
+        :param readOnly: Only reads the content of the buffer without arming the acquisiton
+        :type readOnly: bool
 
-         :Example:
+        :return: A dictionnary containing the informations or an array with the datapoints
+        :rtype: dictionnary or array
 
-         To be added
+        :Example:
 
-         .. seealso::
-         .. warning:: This function need more testing and maybe a refactoring of
-         its parameters. Its mode of operation should be atomized in the future
-         but this might stay to provide legacy compatibility.
-         .. note::
-         .. todo:: Atomize.
-         """
+        To be added
+
+        .. warning:: This function need more testing and maybe a refactoring of its parameters. Its mode of operation should be atomized in the future but this might stay to provide legacy compatibility.
+        .. todo:: Atomize.
+        """
 
         if readOnly==False:
             self.osc.write(f'ARM_ACQUISITION')

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1201</width>
+    <width>1254</width>
     <height>780</height>
    </rect>
   </property>
@@ -41,7 +41,7 @@
          <x>0</x>
          <y>0</y>
          <width>220</width>
-         <height>639</height>
+         <height>655</height>
         </rect>
        </property>
        <attribute name="label">
@@ -71,13 +71,13 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="page_2">
+      <widget class="QWidget" name="experimentParameters">
        <property name="geometry">
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>242</width>
-         <height>625</height>
+         <width>329</width>
+         <height>638</height>
         </rect>
        </property>
        <attribute name="label">
@@ -94,20 +94,61 @@
         <item row="0" column="1">
          <widget class="QSpinBox" name="spinBox"/>
         </item>
-        <item row="1" column="1">
+        <item row="2" column="1">
          <widget class="QSpinBox" name="spinBox_2"/>
         </item>
-        <item row="1" column="0">
+        <item row="2" column="0">
          <widget class="QLabel" name="label_4">
           <property name="text">
            <string>Y steps</string>
           </property>
          </widget>
         </item>
-        <item row="2" column="1">
+        <item row="6" column="1">
+         <widget class="QLineEdit" name="startMachineCoordinatesEdit">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="0">
+         <widget class="QLabel" name="label_5">
+          <property name="text">
+           <string>Start coordinates:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0" colspan="2">
          <widget class="QCommandLinkButton" name="commandLinkButton">
           <property name="text">
            <string>Generate grid</string>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="1">
+         <widget class="QPushButton" name="setStartCoordinatesButton">
+          <property name="text">
+           <string>Set start coordinates</string>
+          </property>
+         </widget>
+        </item>
+        <item row="8" column="0" colspan="2">
+         <widget class="QPlainTextEdit" name="jsonFormatParameters">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>300</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item row="9" column="0">
+         <widget class="QCommandLinkButton" name="startMeasuringButton">
+          <property name="text">
+           <string>Start measuring</string>
           </property>
          </widget>
         </item>
@@ -260,7 +301,7 @@
             </widget>
            </item>
            <item row="4" column="0">
-            <widget class="QPushButton" name="pushButton_13">
+            <widget class="QPushButton" name="zeroWorkingCoordinatesButton">
              <property name="text">
               <string>Zero working
 coordinates</string>
@@ -318,6 +359,26 @@ coordinates</string>
                </property>
               </widget>
              </item>
+             <item row="2" column="0">
+              <widget class="QPushButton" name="unlockButton">
+               <property name="text">
+                <string>unlockButton</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QLineEdit" name="stepEdit">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string>1</string>
+               </property>
+              </widget>
+             </item>
             </layout>
            </item>
           </layout>
@@ -334,8 +395,8 @@ coordinates</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1201</width>
-     <height>22</height>
+     <width>1254</width>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menusurfaceS">

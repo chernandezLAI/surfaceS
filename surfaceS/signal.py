@@ -22,13 +22,13 @@
  # SOFTWARE.
  ################################################################################
 """
- The ``Signal` module
+ The `Signal` module
  ======================
 
  *Author:* [Jérémy Jayet](mailto:jeremy.jayet@epfl.ch)
  *Last modification:* 18.04.2019
 
- Scenario 1
+ Signal handler
 
  """
 
@@ -50,5 +50,3 @@ class Signal():
         self.datapoints = data
         self.sampling_freq = sampling_freq
         self.amplitude_max = amplitude_max
-
-    def get_points

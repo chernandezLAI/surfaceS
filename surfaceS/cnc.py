@@ -69,6 +69,11 @@ class Cnc(threading.Thread):
         self.setPositionEvent(threading.Event(), 0, 0)
         self.x = 9999
         self.y = 9999
+        self.z = 9999
+
+        self.workingZeroX = 0.0
+        self.workingZeroY = 0.0
+        self.workingZeroZ = 0.0
 
         def printStatus(state, x, y, z):
             print(f'{state}, {x}, {y}, {z}')
@@ -110,6 +115,7 @@ class Cnc(threading.Thread):
                 log.info(out)
             self.cncLock.release()
 
+        log.debug("CNC main loop left")
         self.cnc.close()
     def periodic_timer(self):
         while self.running:
@@ -144,6 +150,24 @@ class Cnc(threading.Thread):
         if event != None:
             self.setPositionEvent(event, x, y)
 
+    def goToWorking(self, x:float=9999,y:float=9999,z:float=9999, feedrate:int=1000, event:threading.Event=None):
+        self.sendCommand("G90")
+        command = " " # Do not delete the whitespace !
+        if x != 9999:
+            command += f'X{x} '
+
+        if y != 9999:
+            command += f'Y{y} '
+
+        if z != 9999:
+            command += f'Z{z} '
+
+        command += f'F{feedrate}'
+        self.sendCommand(f'G54 G1{command}') # Uses working coordinates !!!!!!!!!!!
+
+        if event != None:
+            self.setPositionEvent(event, x, y)
+
     def home(self):
         self.sendCommand("$H")
     def unlock(self):
@@ -153,8 +177,11 @@ class Cnc(threading.Thread):
         self.deviceFile = device
 
     def stop(self):
-        self.running = False
+        log.debug("CNC thread stopping...")
         self.sendCommand("?")
+        self.running = False
+        self.join()
+        log.debug("CNC thread stopped")
 
     def __del__(self):
         self.stop()
@@ -169,6 +196,16 @@ class Cnc(threading.Thread):
 
     def getState(self):
         return self.state
+
+    def getMachineCoordinates(self):
+        return (self.x, self.y, self.z)
+
+    def zeroWorkingCoordinates(self):
+        self.workingZeroX = self.x
+        self.workingZeroY = self.y
+        self.workingZeroZ = self.z
+
+        self.sendCommand("G10 L20 P1 X0 Y0 Z0")
 
     def sendStatusQuery(self):
         self.cncLock.acquire()
@@ -192,7 +229,10 @@ class Cnc(threading.Thread):
             X=float(pars3[0])
             Y=float(pars3[1])
             Z=float(pars3[2])
-            self.statusCallback(state=s, x=X, y=Y,z=Y)
+            workingX = X - self.workingZeroX
+            workingZ = Z - self.workingZeroZ
+            workingY = Y - self.workingZeroY
+            self.statusCallback(state=s, x=workingX, y=workingY,z=workingZ)
             self.state = s
             self.x = X
             self.y = Y

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1254</width>
+    <width>1312</width>
     <height>780</height>
    </rect>
   </property>
@@ -33,7 +33,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="page">
        <property name="geometry">
@@ -45,7 +45,7 @@
         </rect>
        </property>
        <attribute name="label">
-        <string>Page 1</string>
+        <string>Plot toolbox</string>
        </attribute>
        <layout class="QFormLayout" name="formLayout_2">
         <item row="0" column="0">
@@ -56,14 +56,17 @@
          </widget>
         </item>
         <item row="0" column="1">
-         <widget class="QSlider" name="horizontalSlider">
+         <widget class="QSlider" name="timeSlider">
+          <property name="maximum">
+           <number>999</number>
+          </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
          </widget>
         </item>
         <item row="1" column="1">
-         <widget class="QLineEdit" name="lineEdit">
+         <widget class="QLineEdit" name="timeEdit">
           <property name="readOnly">
            <bool>true</bool>
           </property>
@@ -77,34 +80,21 @@
          <x>0</x>
          <y>0</y>
          <width>329</width>
-         <height>638</height>
+         <height>655</height>
         </rect>
        </property>
        <attribute name="label">
-        <string>Page 2</string>
+        <string>Measurement toolbox</string>
        </attribute>
        <layout class="QFormLayout" name="formLayout_3">
-        <item row="0" column="0">
-         <widget class="QLabel" name="label_3">
+        <item row="3" column="0">
+         <widget class="QLabel" name="label_5">
           <property name="text">
-           <string>X steps</string>
+           <string>Start coordinates:</string>
           </property>
          </widget>
         </item>
-        <item row="0" column="1">
-         <widget class="QSpinBox" name="spinBox"/>
-        </item>
-        <item row="2" column="1">
-         <widget class="QSpinBox" name="spinBox_2"/>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="label_4">
-          <property name="text">
-           <string>Y steps</string>
-          </property>
-         </widget>
-        </item>
-        <item row="6" column="1">
+        <item row="3" column="1">
          <widget class="QLineEdit" name="startMachineCoordinatesEdit">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
@@ -114,28 +104,14 @@
           </property>
          </widget>
         </item>
-        <item row="6" column="0">
-         <widget class="QLabel" name="label_5">
-          <property name="text">
-           <string>Start coordinates:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="0" colspan="2">
-         <widget class="QCommandLinkButton" name="commandLinkButton">
-          <property name="text">
-           <string>Generate grid</string>
-          </property>
-         </widget>
-        </item>
-        <item row="7" column="1">
+        <item row="4" column="1">
          <widget class="QPushButton" name="setStartCoordinatesButton">
           <property name="text">
            <string>Set start coordinates</string>
           </property>
          </widget>
         </item>
-        <item row="8" column="0" colspan="2">
+        <item row="5" column="0" colspan="2">
          <widget class="QPlainTextEdit" name="jsonFormatParameters">
           <property name="minimumSize">
            <size>
@@ -145,7 +121,7 @@
           </property>
          </widget>
         </item>
-        <item row="9" column="0">
+        <item row="6" column="0">
          <widget class="QCommandLinkButton" name="startMeasuringButton">
           <property name="text">
            <string>Start measuring</string>
@@ -157,27 +133,7 @@
      </widget>
     </item>
     <item>
-     <layout class="QVBoxLayout" name="verticalLayout">
-      <item>
-       <widget class="QGraphicsView" name="graphicsView_3">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-          <horstretch>2</horstretch>
-          <verstretch>2</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>600</width>
-          <height>360</height>
-         </size>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <layout class="QFormLayout" name="formLayout"/>
-      </item>
-     </layout>
+     <layout class="QVBoxLayout" name="plotLayout"/>
     </item>
     <item>
      <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -362,7 +318,7 @@ coordinates</string>
              <item row="2" column="0">
               <widget class="QPushButton" name="unlockButton">
                <property name="text">
-                <string>unlockButton</string>
+                <string>Unlock</string>
                </property>
               </widget>
              </item>
@@ -395,7 +351,7 @@ coordinates</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1254</width>
+     <width>1312</width>
      <height>21</height>
     </rect>
    </property>
@@ -403,7 +359,7 @@ coordinates</string>
     <property name="title">
      <string>Files</string>
     </property>
-    <addaction name="actionNew"/>
+    <addaction name="actionOpenDataFile"/>
     <addaction name="actionSave"/>
     <addaction name="actionSave_as"/>
    </widget>
@@ -421,9 +377,9 @@ coordinates</string>
     <bool>false</bool>
    </attribute>
   </widget>
-  <action name="actionNew">
+  <action name="actionOpenDataFile">
    <property name="text">
-    <string>New...</string>
+    <string>Open data file...</string>
    </property>
   </action>
   <action name="actionSave">

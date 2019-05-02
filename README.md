@@ -36,6 +36,12 @@ The final report will contain the following points:
 
 Supervisors: Camilo Hernandez M., Paolo Germano - Professor: Yves Perriard
 
+## Useful commands
+
+To generate python class for the UI:
+
+> pyuic5 surfaceS\ui\mainwindow.ui -o surfaceS\ui\mainwindow.py
+
 ## GRBL controller parameters
 ´´
 CNCjs 1.9.15 [Grbl]

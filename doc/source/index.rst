@@ -11,9 +11,11 @@ Welcome to surfaceS's documentation!
    :caption: Contents:
 
    usage/installation
+   usage/development
 
    modules/cnc
    modules/oscilloscope
+   modules/signal_generator
 
    modules/measure_vibrations
 

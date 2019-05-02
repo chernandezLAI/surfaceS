@@ -21,26 +21,27 @@
  # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  # SOFTWARE.
  ################################################################################
+
 """
- The ``SignalGenerator`` module
- ======================
+    The ``SignalGenerator`` module
+    ==============================
 
- *Author:* [Jérémy Jayet](mailto:jeremy.jayet@epfl.ch)
- *Last modification:* 21.03.2019
+    *Author:* [Jérémy Jayet](mailto:jeremy.jayet@epfl.ch)
+    *Last modification:* 02.05.2019
 
- This module is a class to handle a signal generator connected by serial
- over USB. It currently supports only the TG2512A from AimTTi.
+    This module is a class to handle a signal generator connected by serial
+    over USB. It currently supports only the TG2512A from AimTTi.
 
- A few notes
- -------------------
+    A few notes
+    -------------------
 
-### Sending data to signal generator.
- During the development, I remarked that the data have to be sent all at once.
- See the following :
- >>> self.mSerialConnection.write(bin)
- With bin containing 100% of the signal.
+    ### Sending data to signal generator.
+    During the development, I remarked that the data have to be sent all at once.
+    See the following :
+    >>> self.mSerialConnection.write(bin)
+    With bin containing 100% of the signal.
 
- """
+"""
 
 
 
@@ -111,10 +112,13 @@ class SignalGenerator():
 
          .. seealso:: connect()
          """
-        self.mSerialConnection.write(("BEEP\n").encode())
-        self.mSerialConnection.write(("LOCAL\n").encode())
-        self.mSerialConnection.close()
-        self.mSerialConnection = 0
+        try:
+            self.mSerialConnection.write(("BEEP\n").encode())
+            self.mSerialConnection.write(("LOCAL\n").encode())
+            self.mSerialConnection.close()
+            self.mSerialConnection = 0
+        except Exception as e:
+            raise Exception
 
     def setChannel(self, channel:int=1):
         """

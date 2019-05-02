@@ -23,16 +23,22 @@
 ################################################################################
 
 """
-# GUI.py
+ The ``GUI`` module
+ ======================
 
+ *Author:* [Jérémy Jayet](mailto:jeremy.jayet@epfl.ch)
+ *Last modification:* 02.05.2019
 
-"""
+ This module implements the different features of the GUI. The layout itself is
+ described in the [mainwindow.ui](ui/mainwindow.ui) file.
+
+ """
 
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QCheckBox, QComboBox, QDateTimeEdit,
         QDial, QDialog, QGridLayout, QGroupBox, QHBoxLayout, QLabel, QLineEdit,
         QProgressBar, QPushButton, QRadioButton, QScrollBar, QSizePolicy,
         QSlider, QSpinBox, QStyleFactory, QTableWidget, QTabWidget, QTextEdit,
-        QVBoxLayout, QWidget)
+        QVBoxLayout, QWidget, QMessageBox, QFileDialog)
 
 import sys
 import logging as log
@@ -41,13 +47,25 @@ import pandas as pd
 
 from ui.mainwindow import Ui_MainWindow as MainWindow
 
+import matplotlib as plt
+# Make sure that we are using QT5
+plt.use('Qt5Agg')
+
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
+from matplotlib.figure import Figure
+
 import Oscilloscope as Osc
 import SignalGenerator as SG
 import cnc as CNC
 import measure_vibrations as mv
+import mainPlot
 
 class Gui(QMainWindow, MainWindow):
     def __init__(self, parent=None):
+        """
+         Initialize the main window.
+         """
         super(Gui, self).__init__(parent)
         log.debug('Preparing GUI...')
         self.setupUi(self)
@@ -122,12 +140,52 @@ class Gui(QMainWindow, MainWindow):
 
         self.startMeasuringButton.clicked.connect(self.startMeasuring)
 
-        self.osc.connect(self.experimentParameters['osc_ip'])
-        self.sg.connect(self.experimentParameters['sg_port'])
+        self.sgConnectButton.clicked.connect(self.connectSg)
+
+        self.createPlot()
+
+        self.actionOpenDataFile.triggered.connect(self.selectDataFile)
+
+        self.timeSlider.valueChanged[int].connect(self.update_plot_in_time)
+
+        #self.osc.connect(self.experimentParameters['osc_ip'])
+        #self.sg.connect(self.experimentParameters['sg_port'])
 
         self.destroyed.connect(self.closeRessources)
 
+################################################################################
+#
+# Setup the signal generator.
+#
+################################################################################
+
+    def connectSg(self):
+        """
+         Connect the signal generator object to the real instrument.
+
+         Also check for errors.
+         """
+        try:
+            self.sg.connect(self.experimentParameters['sg_port'])
+        except Exception as e:
+            self.cncStarted = False
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Critical)
+
+            msg.setText("e.to_string()")
+            msg.setWindowTitle("Error CNC")
+            msg.setStandardButtons(QMessageBox.Ok)
+
+################################################################################
+#
+# Setup the CNC.
+#
+################################################################################
+
     def connectCNC(self, args):
+        """
+         Connect to the CNC and set the status callback for the UI.
+         """
         def cncStatusCallback(state, x, y, z):
             self.machineCoordinatesEdit.setText(f'{state},{x},{y},{z}')
 
@@ -137,22 +195,33 @@ class Gui(QMainWindow, MainWindow):
             self.cncStarted = False
         port = self.portCNCEdit.text()
         self.experimentParameters['cnc_port'] = port
-        self.cnc.connect(port)
-        if self.cncStarted == False:
-            self.cnc.start()
-            self.cncStarted = True
-            self.cnc.updateStatusCallback(cncStatusCallback)
+        try:
+            self.cnc.connect(port)
+            if self.cncStarted == False:
+                self.cnc.start()
+                self.cncStarted = True
+                self.cnc.updateStatusCallback(cncStatusCallback)
+        except Exception as e:
+            self.cncStarted = False
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Critical)
 
-    def __del__(self):
-        self.closeRessources()
+            msg.setText("e.to_string()")
+            msg.setWindowTitle("Error CNC")
+            msg.setStandardButtons(QMessageBox.Ok)
+        finally:
+            pass
 
-    def closeRessources(self):
-        log.debug("Trying to close ressources")
-        self.cnc.stop()
-        self.sg.disconnect()
-        self.osc.disconnect()
+################################################################################
+#
+# Setup the experiment.
+#
+################################################################################
 
     def setDefaultExperimentParameters(self):
+        """
+         Prepare the default values for the experiment.
+         """
         self.experimentParameters['cnc_port'] = "COM5"
         self.experimentParameters['start_x'] = -270.0
         self.experimentParameters['start_y'] = -232.0
@@ -177,12 +246,87 @@ class Gui(QMainWindow, MainWindow):
         self.experimentParameters['trigger_mode'] = "SINGLE"
         self.experimentParameters['trigger_delay'] = 0
 
-    def closeEvent(self, args):
-        self.closeRessources()
-
     def startMeasuring(self):
+        """
+         Launches the measurements
+         """
         scanner = mv.SurfaceVibrationsScanner(self.cnc, self.osc, self.sg, self.experimentParameters)
         self.data = pd.DataFrame()
         self.data = scanner.startScanning()
 
+        self.initPlot()
+
         #self.data.to_csv("data1.csv")
+
+
+################################################################################
+#
+# PLOT MANAGEMENT
+#
+################################################################################
+
+    def createPlot(self):
+        """
+         Creates the plot widget but does not draw anything.
+         """
+
+        self.mainPlot = mainPlot.MainPlot(self.centralwidget)
+        self.plotLayout.addWidget(self.mainPlot)
+
+    def initPlot(self):
+        """
+         Initializes and draw the main plot.
+         """
+        self.mainPlot.init_plot(self.data)
+
+    def update_plot_in_time(self, fraction):
+        """
+         Changes the time of the plot and redraw it.
+         """
+        self.mainPlot.update_plot(time=fraction)
+        self.timeEdit.setText(f'{fraction} samples')
+
+
+    def selectDataFile(self):
+        """
+         Loads data from a datafile containing the data of a previous experiment.
+         """
+        log.debug("Selecting file")
+        def setFile(filePath):
+            self.dataFile = filePath
+            try:
+                self.data = pd.read_csv(filePath)
+                self.initPlot()
+            except Exception as e:
+                log.error("Error opening data file", e)
+
+
+        #dialog = QFileDialog("Select the signal file.")
+        dialog = QFileDialog()
+        dialog.setFileMode(QFileDialog.AnyFile)
+        dialog.fileSelected.connect(setFile)
+        if dialog.exec_():
+            log.debug(f'File selected : {self.dataFile}')
+
+################################################################################
+#
+# Close everything
+#
+################################################################################
+
+    def closeEvent(self, args):
+        self.closeRessources()
+
+    def __del__(self):
+        self.closeRessources()
+
+    def closeRessources(self):
+        log.debug("Trying to close ressources")
+        try:
+            self.cnc.stop()
+            self.sg.disconnect()
+            self.osc.disconnect()
+        except Exception as e:
+            log.error("Problem freeing resources")
+        finally:
+            pass

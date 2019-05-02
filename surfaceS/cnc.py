@@ -26,7 +26,7 @@
  ======================
 
  *Author:* [Jérémy Jayet](mailto:jeremy.jayet@epfl.ch)
- *Last modification:* 11.04.2019
+ *Last modification:* 2.05.2019
 
  This module controls the CNC. It provides a useful interface to send commands
  to the cnc while keeping the control asynchronous.
@@ -84,39 +84,42 @@ class Cnc(threading.Thread):
         self.running = True
 
         # Initialize
-        self.cnc = serial.Serial(self.deviceFile,BAUD_RATE)
+        try:
+            self.cnc = serial.Serial(self.deviceFile,BAUD_RATE)
 
-        self.updaterThread = threading.Thread(target=self.periodic_timer)
-        self.updaterThread.start()
+            self.updaterThread = threading.Thread(target=self.periodic_timer)
+            self.updaterThread.start()
 
-        # Wake up grbl
-        log.info("Initializing Grbl...")
-        cmd = "\r\n\r\n"
-        self.cnc.write(cmd.encode())
-
-        # Wait for grbl to initialize and flush startup text in serial input
-        time.sleep(2)
-        self.cnc.flushInput()
-        self.cncLock.release()
-
-        while self.running :
-            cmd = self.commandQueue.get().strip() + EOLStr
-            if self.running == False:
-                break
-            self.cncLock.acquire()
+            # Wake up grbl
+            log.info("Initializing Grbl...")
+            cmd = "\r\n\r\n"
             self.cnc.write(cmd.encode())
 
-            out = str(self.cnc.readline().strip()) # Wait for grbl response
-            if out.find('ok') >= 0 :
-                log.debug(f'MSG: {out}') # Debug response
-            elif out.find('error') >= 0 :
-                log.error(f'ERROR: {out}')
-            else:
-                log.info(out)
+            # Wait for grbl to initialize and flush startup text in serial input
+            time.sleep(2)
+            self.cnc.flushInput()
             self.cncLock.release()
 
-        log.debug("CNC main loop left")
-        self.cnc.close()
+            while self.running :
+                cmd = self.commandQueue.get().strip() + EOLStr
+                if self.running == False:
+                    break
+                self.cncLock.acquire()
+                self.cnc.write(cmd.encode())
+
+                out = str(self.cnc.readline().strip()) # Wait for grbl response
+                if out.find('ok') >= 0 :
+                    log.debug(f'MSG: {out}') # Debug response
+                elif out.find('error') >= 0 :
+                    log.error(f'ERROR: {out}')
+                else:
+                    log.info(out)
+                self.cncLock.release()
+        except:
+            raise
+        finally:
+            log.debug("CNC main loop left")
+            self.cnc.close()
     def periodic_timer(self):
         while self.running:
           self.sendStatusQuery()
@@ -179,8 +182,9 @@ class Cnc(threading.Thread):
     def stop(self):
         log.debug("CNC thread stopping...")
         self.sendCommand("?")
-        self.running = False
-        self.join()
+        if self.running:
+            self.running = False
+            self.join()
         log.debug("CNC thread stopped")
 
     def __del__(self):

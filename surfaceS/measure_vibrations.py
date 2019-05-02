@@ -26,9 +26,9 @@ The ``Measure vibrations`` module
 =================================
 
 *Author:* [Jérémy Jayet](mailto:jeremy.jayet@epfl.ch)
-*Last modification:* 11.04.2019
+*Last modification:* 02.05.2019
 
-Scenario 1
+In this scenario, we want to measure the vibration on an array full of points.
 
 """
 
@@ -146,15 +146,15 @@ class SurfaceVibrationsScanner():
             positionLock.clear()
             log.debug("Start signal and acquisition")
             self.signalGenerator.setOutput(state=True)
-            time.sleep(2)
+            #time.sleep(2)
             self.osc.setTrigger(self.experimentParameters['trigger_level'], \
                                 self.experimentParameters['trigger_delay'], \
                                 self.experimentParameters['reference_channel'], \
                                 self.experimentParameters['trigger_mode'], \
                                 self.experimentParameters['unit_volt_division'])
-            time.sleep(2)
+            #time.sleep(2)
             self.signalGenerator.burst()
-            time.sleep(1)
+            #time.sleep(1)
 
             tmpData = self.osc.acquire(readOnly=True)
             data[f'{targetX},{targetY}'] = tmpData['data']

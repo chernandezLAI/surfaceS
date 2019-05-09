@@ -64,8 +64,8 @@ class MainPlot(FigureCanvas):
 
         self.ready = False
 
-        self.zLimDown = -300
-        self.zLimUp = 10000
+        self.zLimDown = -16000
+        self.zLimUp = -10000
 
     def init_plot(self, data, type="3D_MAP"):
         self.ready = True
@@ -124,6 +124,12 @@ class MainPlot(FigureCanvas):
 
         # Plot the surface.
         self.surf = self.ax.plot_surface(pX, pY, self.z, cmap=cm.coolwarm, linewidth=0, antialiased=True)
+        self.zLimDown = np.amin(self.z)
+        self.zLimUp = np.amax(self.z)
+        diff = self.zLimUp-self.zLimDown
+        if diff < 255:
+            self.zLimUp = self.zLimDown + diff/2 + 128
+            self.zLimDown = self.zLimDown + diff/2 - 128
         self.ax.set_zlim(self.zLimDown, self.zLimUp)
         self.draw()
 

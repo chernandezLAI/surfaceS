@@ -26,7 +26,7 @@
  ===========================
 
  *Author:* [Jérémy Jayet](mailto:jeremy.jayet@epfl.ch)
- *Last modification:* 11.04.2019
+ *Last modification:* 09.05.2019
 
  This module is a class to handle an oscilloscope connected on the LAN.
  For now, it uses the VICP protocol based on pyvisa and the NI backend.
@@ -240,18 +240,18 @@ class Oscilloscope():
 
         self.osc.write(f'C{channel}:WAVEFORM? DESC')
         desc = self.osc.read_raw()
-        log.info(f'Wave descriptor : {desc}')
+        #log.debug(f'Wave descriptor : {desc}')
 
         self.osc.write(f'C{channel}:WAVEFORM? TEXT')
         text = self.osc.read_raw()
-        log.info(f'Wave text : {text}')
+        #log.debug(f'Wave text : {text}')
 
         self.osc.write(f'C{channel}:WAVEFORM? TIME')
         time = self.osc.read_raw()
-        log.info(f'Wave time : {time}')
+        #log.debug(f'Wave time : {time}')
 
         data1 = self.osc.query_binary_values(f'C{channel}:WAVEFORM? DAT1', datatype='h', is_big_endian=False, header_fmt='ieee')
-        log.info(f'Wave data 1 : {data1}')
+        #log.debug(f'Wave data 1 : {data1}')
 
         if numpyFormat :
             i = 0

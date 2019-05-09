@@ -26,7 +26,7 @@ The ``Measure vibrations`` module
 =================================
 
 *Author:* [Jérémy Jayet](mailto:jeremy.jayet@epfl.ch)
-*Last modification:* 02.05.2019
+*Last modification:* 09.05.2019
 
 In this scenario, we want to measure the vibration on an array full of points.
 
@@ -133,10 +133,11 @@ class SurfaceVibrationsScanner():
 
         data = pd.DataFrame()
 
-        while measuring:
+        self.signalGenerator.setOutput(state=True)
 
-            targetX = xpoint*STEP_X + self.startX
-            targetY = ypoint*STEP_Y + self.startY
+        while measuring:
+            targetX = xpoint*self.experimentParameters['step_x'] + self.startX
+            targetY = ypoint*self.experimentParameters['step_y'] + self.startY
 
             log.debug(f'Going to {targetX},{targetY}')
             self.cnc.goTo(x=targetX, y=targetY, event=positionLock)
@@ -145,21 +146,18 @@ class SurfaceVibrationsScanner():
             positionLock.wait()
             positionLock.clear()
             log.debug("Start signal and acquisition")
-            self.signalGenerator.setOutput(state=True)
             #time.sleep(2)
             self.osc.setTrigger(self.experimentParameters['trigger_level'], \
                                 self.experimentParameters['trigger_delay'], \
                                 self.experimentParameters['reference_channel'], \
                                 self.experimentParameters['trigger_mode'], \
                                 self.experimentParameters['unit_volt_division'])
-            #time.sleep(2)
+            time.sleep(2)
             self.signalGenerator.burst()
-            #time.sleep(1)
+            time.sleep(1)
 
-            tmpData = self.osc.acquire(readOnly=True)
+            tmpData = self.osc.acquire(readOnly=True, channel=self.experimentParameters['vibrometer_channel'])
             data[f'{targetX},{targetY}'] = tmpData['data']
-
-            self.signalGenerator.setOutput(state=False)
 
             log.info("Measure done !")
 
@@ -171,4 +169,7 @@ class SurfaceVibrationsScanner():
                 if ypoint > self.nbPointY:
                     measuring = False
 
-        data.to_csv("data1.csv")
+        self.signalGenerator.setOutput(state=False)
+
+        #data.to_csv("data1.csv")
+        return data

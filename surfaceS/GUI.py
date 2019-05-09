@@ -148,8 +148,8 @@ class Gui(QMainWindow, MainWindow):
 
         self.timeSlider.valueChanged[int].connect(self.update_plot_in_time)
 
-        #self.osc.connect(self.experimentParameters['osc_ip'])
-        #self.sg.connect(self.experimentParameters['sg_port'])
+        self.osc.connect(self.experimentParameters['osc_ip'])
+        self.sg.connect(self.experimentParameters['sg_port'])
 
         self.destroyed.connect(self.closeRessources)
 
@@ -245,18 +245,19 @@ class Gui(QMainWindow, MainWindow):
         self.experimentParameters['trigger_level'] = 100
         self.experimentParameters['trigger_mode'] = "SINGLE"
         self.experimentParameters['trigger_delay'] = 0
+        self.experimentParameters['data_filename'] = "2019_05_09_data.csv"
 
     def startMeasuring(self):
         """
          Launches the measurements
          """
         scanner = mv.SurfaceVibrationsScanner(self.cnc, self.osc, self.sg, self.experimentParameters)
-        self.data = pd.DataFrame()
         self.data = scanner.startScanning()
+        #self.data = scanner.startScanning()
 
-        self.initPlot()
+        #self.initPlot()
 
-        #self.data.to_csv("data1.csv")
+        self.data.to_csv(self.experimentParameters['data_filename'])
 
 
 ################################################################################

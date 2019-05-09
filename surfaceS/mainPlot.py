@@ -67,7 +67,7 @@ class MainPlot(FigureCanvas):
         self.zLimDown = -16000
         self.zLimUp = -10000
 
-    def init_plot(self, data, type="3D_MAP"):
+    def init_plot(self, data, type="3D_MAP", args={}):
         self.ready = True
         self.type = type
         self.data = data

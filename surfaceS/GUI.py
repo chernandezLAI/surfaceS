@@ -60,47 +60,37 @@ import SignalGenerator as SG
 import cnc as CNC
 import measure_vibrations as mv
 import mainPlot
+import ExperimentParametersIO as ExpParamIO
 
 class Gui(QMainWindow, MainWindow):
     def __init__(self, parent=None):
         """
          Initialize the main window.
          """
+
         super(Gui, self).__init__(parent)
         log.debug('Preparing GUI...')
         self.setupUi(self)
 
+        self.isOscilloscopeConnected = False
+        self.isCncConnected = False
+        self.isSignalGeneratorConnected = False
+
         self.experimentParameters = {}
-        self.setDefaultExperimentParameters()
+        self.setExperimentParameters(ExpParamIO.getDefaultParameters())
 
-        def updateJSONFromExpParams():
-            self.jsonFormatParameters.setPlainText(json.dumps(self.experimentParameters, indent=4))
-
-        def updateExpParamsFromJSON():
-            try:
-                self.experimentParameters = json.loads(self.jsonFormatParameters.toPlainText())
-            except json.JSONDecodeError as e:
-                log.error(e.msg)
-
-        self.jsonFormatParameters.selectionChanged.connect(updateJSONFromExpParams)
-        self.jsonFormatParameters.textChanged.connect(updateExpParamsFromJSON)
-        self.cncStarted = False
-
-        log.debug('GUI ready')
+        self.jsonFormatParameters.textChanged.connect(self.updateExpParams)
 
         self.sg = SG.SignalGenerator()
         self.osc = Osc.Oscilloscope()
         self.cnc = CNC.Cnc()
 
-        self.connectCNCButton.clicked.connect(self.connectCNC)
-        self.homeButton.clicked.connect(self.cnc.home)
+#################################### CNC #######################################
+
         self.cnc_step = 1
 
         def setCncStep():
             self.cnc_step = float(self.stepEdit.text())
-
-        self.stepEdit.textChanged.connect(setCncStep)
-
         def jogXPlus():
             self.cnc.jog("x", self.cnc_step)
         def jogXMinus():
@@ -113,6 +103,15 @@ class Gui(QMainWindow, MainWindow):
             self.cnc.jog("z", self.cnc_step)
         def jogZMinus():
             self.cnc.jog("z", -1*self.cnc_step)
+        def goToZeroCNC():
+            self.cnc.goToWorking(0,0,0)
+
+        self.connectCNCButton.clicked.connect(self.connectCNC)
+        self.portCNCEdit.setText(self.experimentParameters['cnc_port'])
+
+        self.homeButton.clicked.connect(self.cnc.home)
+
+        self.stepEdit.textChanged.connect(setCncStep)
 
         self.positiveXButton.clicked.connect(jogXPlus)
         self.negativeXButton.clicked.connect(jogXMinus)
@@ -121,12 +120,23 @@ class Gui(QMainWindow, MainWindow):
         self.positiveZButton.clicked.connect(jogZPlus)
         self.negativeZButton.clicked.connect(jogZMinus)
 
+        self.unlockButton.clicked.connect(self.cnc.unlock)
+
         self.zeroWorkingCoordinatesButton.clicked.connect(self.cnc.zeroWorkingCoordinates)
 
-        def goToZeroCNC():
-            self.cnc.goToWorking(0,0,0)
-
         self.goToWorkingZeroButton.clicked.connect(goToZeroCNC)
+
+        self.homeButton.setEnabled(False)
+        self.stepEdit.setEnabled(False)
+        self.positiveXButton.setEnabled(False)
+        self.negativeXButton.setEnabled(False)
+        self.positiveYButton.setEnabled(False)
+        self.negativeYButton.setEnabled(False)
+        self.positiveZButton.setEnabled(False)
+        self.negativeZButton.setEnabled(False)
+        self.unlockButton.setEnabled(False)
+        self.zeroWorkingCoordinatesButton.setEnabled(False)
+        self.goToWorkingZeroButton.setEnabled(False)
 
         def setStartCoordinates():
             (x, y, z) = self.cnc.getMachineCoordinates()
@@ -136,8 +146,6 @@ class Gui(QMainWindow, MainWindow):
             self.experimentParameters['start_z'] = z
         self.setStartCoordinatesButton.clicked.connect(setStartCoordinates)
 
-        self.unlockButton.clicked.connect(self.cnc.unlock)
-
         self.startMeasuringButton.clicked.connect(self.startMeasuring)
 
         self.sgConnectButton.clicked.connect(self.connectSg)
@@ -146,12 +154,48 @@ class Gui(QMainWindow, MainWindow):
 
         self.actionOpenDataFile.triggered.connect(self.selectDataFile)
 
+        self.actionOpenExperimentFile.triggered.connect(self.selectExperimentFile)
+
+        self.actionSaveExperimentFile.triggered.connect(self.saveExperimentFile)
+
         self.timeSlider.valueChanged[int].connect(self.update_plot_in_time)
 
-        self.osc.connect(self.experimentParameters['osc_ip'])
-        self.sg.connect(self.experimentParameters['sg_port'])
+        self.connectOscilloscopeButton.clicked.connect(self.connectOsc)
+        self.oscilloscopeIPEdit.setText(self.experimentParameters['osc_ip'])
+
+        self.sgConnectButton.clicked.connect(self.connectSg)
+        self.sgSerialPortEdit.setText(self.experimentParameters['sg_port'])
+
+        #self.osc.connect(self.experimentParameters['osc_ip'])
+        #self.sg.connect(self.experimentParameters['sg_port'])
 
         self.destroyed.connect(self.closeRessources)
+
+################################################################################
+#
+# Setup the oscilloscope.
+#
+################################################################################
+
+    def connectOsc(self):
+        """
+         Connect the oscilloscope object to the real instrument.
+
+         Also check for errors.
+         """
+        if self.isOscilloscopeConnected == False:
+            try:
+                self.osc.connect(self.experimentParameters['osc_ip'])
+                self.isOscilloscopeConnected = True
+                self.connectOscilloscopeButton.setText("Disconnect")
+
+            except Exception as e:
+                msg = QMessageBox()
+                self.error(str(e), "Error oscilloscope")
+        else:
+            self.osc.disconnect()
+            self.connectOscilloscopeButton.setText("Connect")
+            self.isOscilloscopeConnected = False
 
 ################################################################################
 #
@@ -165,16 +209,20 @@ class Gui(QMainWindow, MainWindow):
 
          Also check for errors.
          """
-        try:
-            self.sg.connect(self.experimentParameters['sg_port'])
-        except Exception as e:
-            self.cncStarted = False
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Critical)
+        if self.isSignalGeneratorConnected == False:
+            try:
+                self.sg.connect(self.experimentParameters['sg_port'])
+                self.isSignalGeneratorConnected = True
+                self.sgConnectButton.setText("Disconnect")
+            except Exception as e:
+                self.cncStarted = False
+                self.error(str(e), "Error signal generator")
 
-            msg.setText("e.to_string()")
-            msg.setWindowTitle("Error CNC")
-            msg.setStandardButtons(QMessageBox.Ok)
+
+        else:
+            self.sg.disconnect()
+            self.isSignalGeneratorConnected = False
+            self.sgConnectButton.setText("Connect")
 
 ################################################################################
 #
@@ -190,27 +238,48 @@ class Gui(QMainWindow, MainWindow):
             self.machineCoordinatesEdit.setText(f'{state},{x},{y},{z}')
 
 
-        if self.cncStarted:
-            self.cnc.stop()
-            self.cncStarted = False
-        port = self.portCNCEdit.text()
-        self.experimentParameters['cnc_port'] = port
-        try:
-            self.cnc.connect(port)
-            if self.cncStarted == False:
+        if self.isCncConnected == False:
+            try:
+                self.cnc.connect(self.experimentParameters['cnc_port'])
                 self.cnc.start()
-                self.cncStarted = True
+                self.isCncConnected = True
+                self.connectCNCButton.setText("Disconnect")
                 self.cnc.updateStatusCallback(cncStatusCallback)
-        except Exception as e:
-            self.cncStarted = False
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Critical)
 
-            msg.setText("e.to_string()")
-            msg.setWindowTitle("Error CNC")
-            msg.setStandardButtons(QMessageBox.Ok)
-        finally:
-            pass
+                self.homeButton.setEnabled(True)
+                self.stepEdit.setEnabled(True)
+                self.positiveXButton.setEnabled(True)
+                self.negativeXButton.setEnabled(True)
+                self.positiveYButton.setEnabled(True)
+                self.negativeYButton.setEnabled(True)
+                self.positiveZButton.setEnabled(True)
+                self.negativeZButton.setEnabled(True)
+                self.unlockButton.setEnabled(True)
+                self.zeroWorkingCoordinatesButton.setEnabled(True)
+                self.goToWorkingZeroButton.setEnabled(True)
+            except Exception as e:
+                self.cncStarted = False
+                self.error(str(e), "Error CNC")
+            finally:
+                pass
+        else:
+            self.cnc.stop()
+            self.cnc.join()
+            self.cnc = CNC.Cnc()
+            self.isCncConnected = False
+            self.connectCNCButton.setText("Connect")
+
+            self.homeButton.setEnabled(False)
+            self.stepEdit.setEnabled(False)
+            self.positiveXButton.setEnabled(False)
+            self.negativeXButton.setEnabled(False)
+            self.positiveYButton.setEnabled(False)
+            self.negativeYButton.setEnabled(False)
+            self.positiveZButton.setEnabled(False)
+            self.negativeZButton.setEnabled(False)
+            self.unlockButton.setEnabled(False)
+            self.zeroWorkingCoordinatesButton.setEnabled(False)
+            self.goToWorkingZeroButton.setEnabled(False)
 
 ################################################################################
 #
@@ -218,46 +287,73 @@ class Gui(QMainWindow, MainWindow):
 #
 ################################################################################
 
-    def setDefaultExperimentParameters(self):
+    def updateExpParams(self):
+        try:
+            self.experimentParameters = ExpParamIO.toExpParamsFromJSON(self.jsonFormatParameters.toPlainText())
+        except json.JSONDecodeError as e:
+            log.error(e.msg)
+
+    def setExperimentParameters(self,ep):
+        self.experimentParameters = ep
+        self.jsonFormatParameters.setPlainText(ExpParamIO.toJSONFromExpParams(self.experimentParameters))
+
+    def selectExperimentFile(self):
         """
-         Prepare the default values for the experiment.
+         Loads experiment parameters from a file containing the parameters of a previous experiment.
          """
-        self.experimentParameters['cnc_port'] = "COM5"
-        self.experimentParameters['start_x'] = -270.0
-        self.experimentParameters['start_y'] = -232.0
-        self.experimentParameters['start_z'] = -2.003
-        self.experimentParameters['nb_point_x'] = 2
-        self.experimentParameters['nb_point_y'] = 2
-        self.experimentParameters['step_x'] = 10.0
-        self.experimentParameters['step_y'] = 10.0
-        self.experimentParameters['sg_port'] = "COM6"
-        self.experimentParameters['wave_type'] = "SINE"
-        self.experimentParameters['frequency'] = 10000
-        self.experimentParameters['channel_sg'] = 1
-        self.experimentParameters['osc_ip'] = "128.178.201.9"
-        self.experimentParameters['vibrometer_channel'] = 2
-        self.experimentParameters['reference_channel'] = 1
-        self.experimentParameters['unit_time_division'] = "MS"
-        self.experimentParameters['unit_volt_division'] = "MV"
-        self.experimentParameters['volt_division_vibrometer'] = 20
-        self.experimentParameters['volt_division_reference'] = 500
-        self.experimentParameters['time_division'] = 5
-        self.experimentParameters['trigger_level'] = 100
-        self.experimentParameters['trigger_mode'] = "SINGLE"
-        self.experimentParameters['trigger_delay'] = 0
-        self.experimentParameters['data_filename'] = "2019_05_09_data.csv"
+        log.debug("Selecting file")
+        def setFile(filePath):
+            self.jsonFormatParameters.textChanged.disconnect()
+            self.experimentFile = filePath
+            try:
+                self.setExperimentParameters(ExpParamIO.readParametersFromFile(filePath))
+            except Exception as e:
+                log.error("Error opening experiment file", str(e))
+            self.jsonFormatParameters.textChanged.connect(self.updateExpParams)
+
+        #dialog = QFileDialog("Select the signal file.")
+        dialog = QFileDialog()
+        dialog.setFileMode(QFileDialog.AnyFile)
+        dialog.fileSelected.connect(setFile)
+        if dialog.exec_():
+            log.debug(f'File selected : {self.experimentFile}')
+
+    def saveExperimentFile(self):
+        """
+         Save experiment parameters to a file containing the parameters.
+         """
+        log.debug("Saving file")
+
+        try:
+            self.experimentFile
+        except AttributeError:
+            self.experimentFile = None
+
+        if self.experimentFile == None:
+            try:
+                ExpParamIO.writeParametersToFile("experiment_parameters.json", self.experimentParameters)
+            except Exception as e:
+                log.error("Error opening experiment file", e)
+        else:
+            try:
+                ExpParamIO.writeParametersToFile(self.experimentFile, self.experimentParameters)
+            except Exception as e:
+                log.error("Error opening experiment file", e)
 
     def startMeasuring(self):
         """
          Launches the measurements
          """
-        scanner = mv.SurfaceVibrationsScanner(self.cnc, self.osc, self.sg, self.experimentParameters)
-        self.data = scanner.startScanning()
-        #self.data = scanner.startScanning()
+        if self.isCncConnected and self.isSignalGeneratorConnected and self.isOscilloscopeConnected:
+            scanner = mv.SurfaceVibrationsScanner(self.cnc, self.osc, self.sg, self.experimentParameters)
+            self.data = scanner.startScanning()
+            #self.data = scanner.startScanning()
 
-        #self.initPlot()
+            #self.initPlot()
 
-        self.data.to_csv(self.experimentParameters['data_filename'])
+            self.data.to_csv(self.experimentParameters['data_filename'])
+        else:
+            self.error("Connect all the instruments before launching the experiment", "Unable to start")
 
 
 ################################################################################
@@ -331,3 +427,18 @@ class Gui(QMainWindow, MainWindow):
             log.error("Problem freeing resources")
         finally:
             pass
+
+################################################################################
+#
+# Error management
+#
+################################################################################
+
+    def error(self, message, title="Error"):
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Critical)
+
+        msg.setText(message)
+        msg.setWindowTitle(title)
+        msg.setStandardButtons(QMessageBox.Ok)
+        msg.exec_()

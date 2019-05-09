@@ -181,9 +181,9 @@ class Cnc(threading.Thread):
 
     def stop(self):
         log.debug("CNC thread stopping...")
-        self.sendCommand("?")
         if self.running:
             self.running = False
+            self.sendCommand("?")
             self.join()
         log.debug("CNC thread stopped")
 

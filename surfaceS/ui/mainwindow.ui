@@ -21,15 +21,21 @@
     <item>
      <widget class="QToolBox" name="toolBox">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Fixed" vsizetype="Minimum">
+       <sizepolicy hsizetype="Maximum" vsizetype="Minimum">
         <horstretch>1</horstretch>
         <verstretch>1</verstretch>
        </sizepolicy>
       </property>
       <property name="minimumSize">
        <size>
-        <width>220</width>
-        <height>360</height>
+        <width>300</width>
+        <height>600</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>500</width>
+        <height>16777215</height>
        </size>
       </property>
       <property name="currentIndex">
@@ -40,7 +46,7 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>220</width>
+         <width>500</width>
          <height>655</height>
         </rect>
        </property>
@@ -79,7 +85,7 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>329</width>
+         <width>500</width>
          <height>655</height>
         </rect>
        </property>
@@ -113,6 +119,12 @@
         </item>
         <item row="5" column="0" colspan="2">
          <widget class="QPlainTextEdit" name="jsonFormatParameters">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+            <horstretch>2</horstretch>
+            <verstretch>2</verstretch>
+           </sizepolicy>
+          </property>
           <property name="minimumSize">
            <size>
             <width>0</width>
@@ -138,11 +150,46 @@
     <item>
      <layout class="QVBoxLayout" name="verticalLayout_3">
       <item>
+       <widget class="QGroupBox" name="oscilloGroupBox">
+        <property name="title">
+         <string>Oscilloscope</string>
+        </property>
+        <layout class="QGridLayout" name="OscilloscopeGrid">
+         <item row="0" column="1">
+          <widget class="QPushButton" name="connectOscilloscopeButton">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>Connect</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLineEdit" name="oscilloscopeIPEdit">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
        <widget class="QGroupBox" name="groupBox">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
           <horstretch>1</horstretch>
-          <verstretch>1</verstretch>
+          <verstretch>3</verstretch>
          </sizepolicy>
         </property>
         <property name="minimumSize">
@@ -156,7 +203,14 @@
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_4">
          <item>
-          <widget class="QGraphicsView" name="graphicsView_2"/>
+          <widget class="QGraphicsView" name="graphicsView_2">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+          </widget>
          </item>
          <item>
           <layout class="QGridLayout" name="gridLayout_2">
@@ -169,6 +223,9 @@
            </item>
            <item row="0" column="1">
             <widget class="QLineEdit" name="sgSerialPortEdit">
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
              <property name="placeholderText">
               <string>serial port</string>
              </property>
@@ -210,9 +267,9 @@
       <item>
        <widget class="QGroupBox" name="groupBox_2">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
           <horstretch>1</horstretch>
-          <verstretch>1</verstretch>
+          <verstretch>2</verstretch>
          </sizepolicy>
         </property>
         <property name="title">
@@ -360,7 +417,8 @@ coordinates</string>
      <string>Files</string>
     </property>
     <addaction name="actionOpenDataFile"/>
-    <addaction name="actionSave"/>
+    <addaction name="actionOpenExperimentFile"/>
+    <addaction name="actionSaveExperimentFile"/>
     <addaction name="actionSave_as"/>
    </widget>
    <addaction name="menusurfaceS"/>
@@ -382,7 +440,7 @@ coordinates</string>
     <string>Open data file...</string>
    </property>
   </action>
-  <action name="actionSave">
+  <action name="actionSaveExperimentFile">
    <property name="text">
     <string>Save</string>
    </property>
@@ -390,6 +448,11 @@ coordinates</string>
   <action name="actionSave_as">
    <property name="text">
     <string>Save as...</string>
+   </property>
+  </action>
+  <action name="actionOpenExperimentFile">
+   <property name="text">
+    <string>Open experiment file...</string>
    </property>
   </action>
  </widget>

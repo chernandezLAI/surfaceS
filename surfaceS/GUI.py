@@ -61,6 +61,7 @@ import cnc as CNC
 import measure_vibrations as mv
 import mainPlot
 import ExperimentParametersIO as ExpParamIO
+import MeasureDataset
 
 class Gui(QMainWindow, MainWindow):
     def __init__(self, parent=None):
@@ -346,12 +347,10 @@ class Gui(QMainWindow, MainWindow):
          """
         if self.isCncConnected and self.isSignalGeneratorConnected and self.isOscilloscopeConnected:
             scanner = mv.SurfaceVibrationsScanner(self.cnc, self.osc, self.sg, self.experimentParameters)
-            self.data = scanner.startScanning()
-            #self.data = scanner.startScanning()
+            rawData = scanner.startScanning()
 
-            #self.initPlot()
-
-            self.data.to_csv(self.experimentParameters['data_filename'])
+            self.data = MeasureDataset.MeasureDataset(rawData, experimentParameters=self.experimentParameters)
+            self.data.save_to(self.experimentParameters['data_filename'])
         else:
             self.error("Connect all the instruments before launching the experiment", "Unable to start")
 
@@ -392,7 +391,7 @@ class Gui(QMainWindow, MainWindow):
         def setFile(filePath):
             self.dataFile = filePath
             try:
-                self.data = pd.read_csv(filePath)
+                self.data = MeasureDataset.MeasureDataset.load_from(filePath)
                 self.initPlot()
             except Exception as e:
                 log.error("Error opening data file", e)
@@ -421,6 +420,7 @@ class Gui(QMainWindow, MainWindow):
         log.debug("Trying to close ressources")
         try:
             self.cnc.stop()
+            self.cnc.join()
             self.sg.disconnect()
             self.osc.disconnect()
         except Exception as e:

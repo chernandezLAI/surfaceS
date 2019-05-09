@@ -85,3 +85,6 @@ $131=131.000 (Y-axis maximum travel, millimeters)
 $132=142.000 (Z-axis maximum travel, millimeters)
 ok
 ´´
+
+
+-231.0,-330.0,-2.003

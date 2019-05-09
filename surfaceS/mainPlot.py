@@ -27,7 +27,7 @@
  ======================
 
  *Author:* [Jérémy Jayet](mailto:jeremy.jayet@epfl.ch)
- *Last modification:* 02.05.2019
+ *Last modification:* 09.05.2019
 
  In this module, the main plot is created and managed.
 
@@ -48,6 +48,8 @@ from PyQt5 import QtCore, QtWidgets
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 from matplotlib.figure import Figure
+
+import MeasureDataset
 
 class MainPlot(FigureCanvas):
 
@@ -70,7 +72,7 @@ class MainPlot(FigureCanvas):
     def init_plot(self, data, type="3D_MAP", args={}):
         self.ready = True
         self.type = type
-        self.data = data
+        self.data = data.get_data()
 
         # Automatic refreshing
         #timer = QtCore.QTimer(self)

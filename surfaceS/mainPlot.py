@@ -72,6 +72,7 @@ class MainPlot(FigureCanvas):
     def init_plot(self, data, type="3D_MAP", args={}):
         self.ready = True
         self.type = type
+        self.dataset = data
         self.data = data.get_data()
 
         if type=="3D_MAP":
@@ -119,7 +120,7 @@ class MainPlot(FigureCanvas):
                 zidx = self.findCoincidentIdx(tt[0], tz[0])
                 if zidx >= 0:
                     log.debug(f'Registering...')
-                    self.z[i][j] = self.data.iloc[t,zidx+1]
+                    self.z[i][j] = self.data.iloc[t,zidx+1]*self.dataset.zScale
                 else:
                     self.z[i][j] = 0
                 j = j+1
@@ -135,6 +136,8 @@ class MainPlot(FigureCanvas):
 
         # Plot the surface.
         self.surf = self.ax.plot_surface(pX, pY, self.z, cmap=cm.coolwarm, linewidth=0, antialiased=True)
+        self.ax.set_zlabel('Amplitude in $\mu m$')
+
         # self.zLimDown = np.amin(self.z)
         # self.zLimUp = np.amax(self.z)
         # diff = self.zLimUp-self.zLimDown

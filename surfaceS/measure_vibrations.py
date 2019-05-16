@@ -142,9 +142,6 @@ class SurfaceVibrationsScanner():
             log.debug(f'Going to {targetX},{targetY}')
             self.cnc.goTo(x=targetX, y=targetY, event=positionLock)
 
-            log.debug("Waiting to be in position...")
-            positionLock.wait()
-            positionLock.clear()
             log.debug("Start signal and acquisition")
             #time.sleep(2)
             self.osc.setTrigger(self.experimentParameters['trigger_level'], \
@@ -152,7 +149,10 @@ class SurfaceVibrationsScanner():
                                 self.experimentParameters['reference_channel'], \
                                 self.experimentParameters['trigger_mode'], \
                                 self.experimentParameters['unit_volt_division'])
-            time.sleep(2)
+            log.debug("Waiting to be in position...")
+            positionLock.wait()
+            time.sleep(1)
+            positionLock.clear()
             self.signalGenerator.burst()
             time.sleep(1)
 

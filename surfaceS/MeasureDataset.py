@@ -28,7 +28,9 @@
  *Author:* [Jérémy Jayet](mailto:jeremy.jayet@epfl.ch)
  *Last modification:* 13.05.2019
 
-
+ This module is a class to manage experiment data objects.
+ The goal is to keep track of all the parameters even after the measurement to
+ to be sure to keep all the metadata needed to interpret the data.
 
  """
 
@@ -43,13 +45,28 @@ import re
 import ExperimentParametersIO as ExpParamIO
 
 
-VIBROMETER_HEIGHT_VOLTAGE = 0.001
+VIBROMETER_HEIGHT_VOLTAGE = 1 # UNIT IN MICROMETER !!!
+
+NUMBER_BIT_OSC_DATA = 16
+
+MAX_VALUE_OSC_DATA = np.power(2, NUMBER_BIT_OSC_DATA)
+
+NUMBER_VOLTAGE_DIVISION_OSC = 8
+
+NUMBER_TIME_DIVISION_OSC = 10
 
 class MeasureDataset():
     def __init__(self, data=None, experimentParameters=ExpParamIO.getDefaultParameters()):
         self.experimentParameters = experimentParameters
         self.data = data
+
+        self.numberOfSamples = self.data.shape[0]
+
         self.height_coefficient = 0
+
+        self.zScale = (NUMBER_VOLTAGE_DIVISION_OSC * self.experimentParameters['volt_division_vibrometer']*VIBROMETER_HEIGHT_VOLTAGE)/MAX_VALUE_OSC_DATA
+
+        self.timeScale = (NUMBER_TIME_DIVISION_OSC*self.experimentParameters['time_division'])/self.numberOfSamples
 
     def set_data(self, data):
         self.data = data
@@ -136,3 +153,6 @@ class MeasureDataset():
 
     def import_data_from(self, filename):
         pass
+
+    def get_time_scale(self):
+        return self.timeScale

@@ -61,7 +61,7 @@ def getDefaultParameters():
     experimentParameters['unit_volt_division'] = "MV"
     experimentParameters['volt_division_vibrometer'] = 20
     experimentParameters['volt_division_reference'] = 500
-    experimentParameters['time_division'] = 5
+    experimentParameters['time_division'] = 0.05
     experimentParameters['trigger_level'] = 100
     experimentParameters['trigger_mode'] = "SINGLE"
     experimentParameters['trigger_delay'] = 0

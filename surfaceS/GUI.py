@@ -145,6 +145,7 @@ class Gui(QMainWindow, MainWindow):
             self.experimentParameters['start_x'] = x
             self.experimentParameters['start_y'] = y
             self.experimentParameters['start_z'] = z
+            self.setExperimentParameters(self.experimentParameters)
         self.setStartCoordinatesButton.clicked.connect(setStartCoordinates)
 
         self.startMeasuringButton.clicked.connect(self.startMeasuring)
@@ -382,7 +383,8 @@ class Gui(QMainWindow, MainWindow):
          Changes the time of the plot and redraw it.
          """
         self.mainPlot.update_plot(time=fraction)
-        self.timeEdit.setText(f'{fraction} samples')
+        time = self.data.get_time_scale*fraction/1000
+        self.timeEdit.setText(f'{time} ms')
 
 
     def selectDataFile(self):

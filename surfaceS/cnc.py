@@ -220,14 +220,14 @@ class Cnc(threading.Thread):
         self.cnc.write(cmd.encode())
         out = str(self.cnc.readline().strip()) # Wait for grbl response
         self.cncLock.release()
-        log.debug(f'Status query: {out}')
+        #log.debug(f'Status query: {out}')
 
         # Parsing
         idxBegin = out.find("<")
         idxEnd = out.find(">", idxBegin)
         if (idxBegin >= 0) and (idxEnd >= 0):
             out = out[idxBegin:idxEnd]
-            log.debug("Parsing...")
+            #log.debug("Parsing...")
             pars1 = out.split("|")
             pars2 = pars1[1].split(":")
             pars3 = pars2[1].split(",")
@@ -247,5 +247,9 @@ class Cnc(threading.Thread):
         diffX = self.targetX - self.x
         diffY = self.targetY - self.y
         if (diffX < 0.05) and (diffY < 0.05):
-            log.debug("CNC in position. Setting the event.")
-            self.positionEvent.set()
+            #log.debug("CNC in position. Setting the event.")
+            try:
+                self.positionEvent.set()
+                self.positionEvent = None
+            except Exception as e:
+                log.warning("No position event")

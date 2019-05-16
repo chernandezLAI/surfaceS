@@ -27,7 +27,7 @@
  ======================
 
  *Author:* [Jérémy Jayet](mailto:jeremy.jayet@epfl.ch)
- *Last modification:* 02.05.2019
+ *Last modification:* 13.05.2019
 
  This module implements the different features of the GUI. The layout itself is
  described in the [mainwindow.ui](ui/mainwindow.ui) file.
@@ -394,7 +394,7 @@ class Gui(QMainWindow, MainWindow):
                 self.data = MeasureDataset.MeasureDataset.load_from(filePath)
                 self.initPlot()
             except Exception as e:
-                log.error("Error opening data file", e)
+                log.error("Error opening data file" + str(e))
 
 
         #dialog = QFileDialog("Select the signal file.")

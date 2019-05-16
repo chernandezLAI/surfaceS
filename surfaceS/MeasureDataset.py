@@ -28,7 +28,7 @@
  *Author:* [Jérémy Jayet](mailto:jeremy.jayet@epfl.ch)
  *Last modification:* 13.05.2019
 
- 
+
 
  """
 
@@ -38,6 +38,7 @@ import numpy as np
 import pandas as pd
 from io import StringIO
 import json
+import re
 
 import ExperimentParametersIO as ExpParamIO
 
@@ -99,22 +100,36 @@ class MeasureDataset():
         fhandle.close()
 
     def load_from(filename):
-        fhandle = open(filename)
 
-        rootString = json.loads(fhandle.read())
+        filterJson =  re.compile('.json')
+        filterCSV = re.compile('.csv')
+        matchJson = filterJson.search(filename)
+        matchCSV = filterCSV.search(filename)
 
-        try:
-            dataBuffer = StringIO(rootString['csv_data'])
-            data = pd.read_csv(dataBuffer)
-        except Exception as e:
-            data = None
-            log.error(str(e))
+        if matchJson != None:
+            log.debug("Opening JSON file...")
+            fhandle = open(filename)
 
-        parameters = ExpParamIO.toExpParamsFromJSON(rootString['experimentParameters'])
+            rootString = json.loads(fhandle.read())
 
-        fhandle.close()
+            try:
+                dataBuffer = StringIO(rootString['csv_data'])
+                data = pd.read_csv(dataBuffer)
+            except Exception as e:
+                data = None
+                log.error(str(e))
 
-        return MeasureDataset(data, parameters)
+            parameters = ExpParamIO.toExpParamsFromJSON(rootString['experimentParameters'])
+
+            fhandle.close()
+
+            return MeasureDataset(data, parameters)
+        elif matchCSV != None:
+            log.debug("Opening CSV file...")
+            data = pd.read_csv(filename)
+            return MeasureDataset(data)
+        else:
+            raise NameError("The format is not supported.")
 
     def export_data_to(self, filename):
         pass

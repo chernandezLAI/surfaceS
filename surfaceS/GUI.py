@@ -149,8 +149,6 @@ class Gui(QMainWindow, MainWindow):
 
         self.startMeasuringButton.clicked.connect(self.startMeasuring)
 
-        self.sgConnectButton.clicked.connect(self.connectSg)
-
         self.createPlot()
 
         self.actionOpenDataFile.triggered.connect(self.selectDataFile)
@@ -216,8 +214,9 @@ class Gui(QMainWindow, MainWindow):
                 self.isSignalGeneratorConnected = True
                 self.sgConnectButton.setText("Disconnect")
             except Exception as e:
-                self.cncStarted = False
+                self.isSignalGeneratorConnected = False
                 self.error(str(e), "Error signal generator")
+                self.sgConnectButton.setText("Connect")
 
 
         else:
@@ -291,8 +290,11 @@ class Gui(QMainWindow, MainWindow):
     def updateExpParams(self):
         try:
             self.experimentParameters = ExpParamIO.toExpParamsFromJSON(self.jsonFormatParameters.toPlainText())
+            self.oscilloscopeIPEdit.setText(self.experimentParameters['osc_ip'])
+            self.sgSerialPortEdit.setText(self.experimentParameters['sg_port'])
+            self.portCNCEdit.setText(self.experimentParameters['cnc_port'])
         except json.JSONDecodeError as e:
-            log.error(e.msg)
+            log.error(str(e))
 
     def setExperimentParameters(self,ep):
         self.experimentParameters = ep

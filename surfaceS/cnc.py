@@ -178,6 +178,8 @@ class Cnc(threading.Thread):
 
     def connect(self, device:string):
         self.deviceFile = device
+        testCnc = serial.Serial(self.deviceFile,BAUD_RATE)
+        testCnc.close()
 
     def stop(self):
         log.debug("CNC thread stopping...")
@@ -244,5 +246,6 @@ class Cnc(threading.Thread):
 
         diffX = self.targetX - self.x
         diffY = self.targetY - self.y
-        if (diffX < 0.5) and (diffY < 0.5):
+        if (diffX < 0.05) and (diffY < 0.05):
+            log.debug("CNC in position. Setting the event.")
             self.positionEvent.set()

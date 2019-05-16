@@ -74,11 +74,6 @@ class MainPlot(FigureCanvas):
         self.type = type
         self.data = data.get_data()
 
-        # Automatic refreshing
-        #timer = QtCore.QTimer(self)
-        #timer.timeout.connect(self.update_plot)
-        #timer.start(1000)
-
         if type=="3D_MAP":
             self.ax = self.fig.gca(projection='3d')
 
@@ -87,8 +82,13 @@ class MainPlot(FigureCanvas):
             self.y = np.empty(tmpHead.size)
             for i in range(1,tmpHead.size):
                 coord = tmpHead[i].split(",")
-                self.x[i-1] = float(coord[0])
-                self.y[i-1] = float(coord[1])
+                try:
+                    self.x[i-1] = float(coord[0])
+                    self.y[i-1] = float(coord[1])
+                except Exception as e:
+                    self.x[i-1] = 0.0
+                    self.y[i-1] = 0.0
+                    log.warning(f'Problem converting coordinates, {str(e)}')
                 #z[i-1] = data.iloc[t,i-1]
 
             self.listX = np.unique(self.x)
@@ -97,14 +97,18 @@ class MainPlot(FigureCanvas):
             self.listY = np.delete(self.listY, self.listY.size-1)
 
             self.z = np.empty((self.listX.size,self.listY.size))
+        elif self.type=="2D_signal":
+            pass
 
-            self.update_plot(0)
+        self.update_plot(0)
 
     def update_plot(self, time=0):
         if self.ready == False:
             return
-        t = time
-        print("t=",t)
+        t = time*int(self.data.shape[0] / 1000)
+        log.debug(f't={t}')
+
+        self.ax.clear()
 
         i = 0
         for uX in self.listX:
@@ -114,25 +118,30 @@ class MainPlot(FigureCanvas):
                 tz = np.where(self.y==uY)
                 zidx = self.findCoincidentIdx(tt[0], tz[0])
                 if zidx >= 0:
+                    log.debug(f'Registering...')
                     self.z[i][j] = self.data.iloc[t,zidx+1]
                 else:
                     self.z[i][j] = 0
                 j = j+1
             i = i+1
 
-        #print(z)
-
         pX, pY = np.meshgrid(self.listX,self.listY)
+
+        #log.debug(f'size pX = {pX.size}, size pY = {pY.size}, size z ={self.z.size}')
+
+        #print(self.z)
+        #print(pX)
+        #print(pY)
 
         # Plot the surface.
         self.surf = self.ax.plot_surface(pX, pY, self.z, cmap=cm.coolwarm, linewidth=0, antialiased=True)
-        self.zLimDown = np.amin(self.z)
-        self.zLimUp = np.amax(self.z)
-        diff = self.zLimUp-self.zLimDown
-        if diff < 255:
-            self.zLimUp = self.zLimDown + diff/2 + 128
-            self.zLimDown = self.zLimDown + diff/2 - 128
-        self.ax.set_zlim(self.zLimDown, self.zLimUp)
+        # self.zLimDown = np.amin(self.z)
+        # self.zLimUp = np.amax(self.z)
+        # diff = self.zLimUp-self.zLimDown
+        # if diff < 255:
+        #     self.zLimUp = self.zLimDown + diff/2 + 128
+        #     self.zLimDown = self.zLimDown + diff/2 - 128
+        # self.ax.set_zlim(self.zLimDown, self.zLimUp)
         self.draw()
 
     def findCoincidentIdx(self, tt, tz):

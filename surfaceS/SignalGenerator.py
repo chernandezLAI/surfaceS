@@ -27,7 +27,7 @@
     ==============================
 
     *Author:* [Jérémy Jayet](mailto:jeremy.jayet@epfl.ch)
-    *Last modification:* 02.05.2019
+    *Last modification:* 24.05.2019
 
     This module is a class to handle a signal generator connected by serial
     over USB. It currently supports only the TG2512A from AimTTi.
@@ -275,9 +275,12 @@ class SignalGenerator():
 
         self.mSerialConnection.write(("\n").encode())
 
-        if(name != "ARB"):
+        log.info("Signal uploaded.")
+
+        if name != "ARB":
             cmd = "ARBDEF " + "ARB" + str(register) + "," + name + "," + "OFF\n"
             self.mSerialConnection.write(cmd.encode())
+            log.debug(f'Name set: {name}')
 
     def setBurstMode(self, burstCount:int=1, burstPhase:float=0.0):
         """
@@ -346,3 +349,39 @@ class SignalGenerator():
         self.mSerialConnection.write(cmd.encode())
         log.debug(cmd + " : OK\n")
         log.debug("BURST !")
+
+# This import registers the 3D projection, but is otherwise unused.
+from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused impor
+from matplotlib import cm
+import matplotlib.animation as animation
+
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
+from matplotlib.figure import Figure
+
+from PyQt5 import QtCore, QtWidgets
+
+class SignalPlot(FigureCanvas):
+    def __init__(self, parent=None, width=5, height=4, dpi=100):
+        self.fig = Figure(figsize=(width, height), dpi=dpi)
+
+        FigureCanvas.__init__(self, self.fig)
+
+        FigureCanvas.setSizePolicy(self,
+                                   QtWidgets.QSizePolicy.Expanding,
+                                   QtWidgets.QSizePolicy.Expanding)
+        FigureCanvas.updateGeometry(self)
+
+        self.ax = self.fig.add_subplot(111)
+
+        self.ready = True
+
+    def plot(self, data):
+        # discards the old graph
+        self.ax.clear()
+
+        # plot data
+        self.ax.plot(data, '*-')
+
+        # refresh canvas
+        self.draw()

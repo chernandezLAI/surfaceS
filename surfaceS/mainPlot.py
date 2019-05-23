@@ -51,6 +51,9 @@ from matplotlib.figure import Figure
 
 import MeasureDataset
 
+Z_LIM_UP_DEFAULT = 50
+Z_LIM_DOWN_DEFAULT = -50
+
 class MainPlot(FigureCanvas):
 
     def __init__(self, parent=None, width=5, height=4, dpi=100):
@@ -66,14 +69,15 @@ class MainPlot(FigureCanvas):
 
         self.ready = False
 
-        self.zLimDown = -16000
-        self.zLimUp = -10000
+        self.zLimDown = Z_LIM_DOWN_DEFAULT
+        self.zLimUp = Z_LIM_UP_DEFAULT
 
     def init_plot(self, data, type="3D_MAP", args={}):
-        self.ready = True
         self.type = type
         self.dataset = data
         self.data = data.get_data()
+
+        self.datalength = self.data.shape[0]
 
         if type=="3D_MAP":
             self.ax = self.fig.gca(projection='3d')
@@ -98,15 +102,18 @@ class MainPlot(FigureCanvas):
             self.listY = np.delete(self.listY, self.listY.size-1)
 
             self.z = np.empty((self.listX.size,self.listY.size))
+
+            log.debug(f'size listX = {self.listX.shape}, size listY = {self.listY.shape}')
         elif self.type=="2D_signal":
             pass
 
+        self.ready = True
         self.update_plot(0)
 
-    def update_plot(self, time=0):
+    def update_plot(self, time=0, totalTime=1000):
         if self.ready == False:
             return
-        t = time*int(self.data.shape[0] / 1000)
+        t = time*int(self.data.shape[0] / totalTime)
         log.debug(f't={t}')
 
         self.ax.clear()
@@ -119,32 +126,34 @@ class MainPlot(FigureCanvas):
                 tz = np.where(self.y==uY)
                 zidx = self.findCoincidentIdx(tt[0], tz[0])
                 if zidx >= 0:
-                    log.debug(f'Registering...')
+                    #log.debug(f'Registering...')
                     self.z[i][j] = self.data.iloc[t,zidx+1]*self.dataset.zScale
                 else:
                     self.z[i][j] = 0
                 j = j+1
             i = i+1
 
-        pX, pY = np.meshgrid(self.listX,self.listY)
+        pX, pY = np.meshgrid(self.listX,self.listY, indexing='ij')
 
-        #log.debug(f'size pX = {pX.size}, size pY = {pY.size}, size z ={self.z.size}')
+        log.debug(f'size pX = {pX.size}, size pY = {pY.size}, shape z ={self.z.shape}')
+        #log.debug(f'shape z ={self.z.shape}')
 
-        #print(self.z)
-        #print(pX)
-        #print(pY)
+        print(self.z)
+        print(pX)
+        print(pY)
+        #print(self.listX)
+        #print(self.listY)
 
         # Plot the surface.
         self.surf = self.ax.plot_surface(pX, pY, self.z, cmap=cm.coolwarm, linewidth=0, antialiased=True)
+        #self.surf = self.ax.plot_surface(self.listX, self.listY, self.z, cmap=cm.coolwarm, linewidth=0, antialiased=True)
         self.ax.set_zlabel('Amplitude in $\mu m$')
 
-        # self.zLimDown = np.amin(self.z)
-        # self.zLimUp = np.amax(self.z)
         # diff = self.zLimUp-self.zLimDown
         # if diff < 255:
         #     self.zLimUp = self.zLimDown + diff/2
         #     self.zLimDown = self.zLimDown + diff/2
-        # self.ax.set_zlim(self.zLimDown, self.zLimUp)
+        self.ax.set_zlim(self.zLimDown, self.zLimUp)
         self.draw()
 
     def findCoincidentIdx(self, tt, tz):
@@ -159,11 +168,37 @@ class MainPlot(FigureCanvas):
                     w = w + 1
         return -1
 
-        def setZLimits(up, down=self.zLimDown):
-            self.zLimDown = down
-            self.zLimUp = up
+    def setZLimits(self, up=Z_LIM_UP_DEFAULT, down=Z_LIM_DOWN_DEFAULT):
+        self.zLimDown = down
+        self.zLimUp = up
+        if self.ready:
             self.ax.set_zlim(self.zLimDown, self.zLimUp)
             self.draw()
+
+    def saveFigure(self, filename, dpi=None, facecolor='w', edgecolor='w',
+        orientation='portrait', papertype=None, format=None,
+        transparent=False, bbox_inches=None, pad_inches=0.1,
+        frameon=None, metadata=None):
+        self.fig.savefig(filename, dpi=None, facecolor='w', edgecolor='w',
+        orientation='portrait', papertype=None, format=None,
+        transparent=False, bbox_inches=None, pad_inches=0.1,
+        frameon=None, metadata=None)
+
+    def init_anim(self):
+        self.update_plot(0)
+
+    def iterate_anim(self, frame):
+        self.update_plot(frame, self.datalength)
+
+    def save_animation(self):
+        ani = animation.FuncAnimation(self.fig, self.iterate_anim, init_func=self.init_anim, interval=10, blit=True, save_count=50)
+
+        # from matplotlib.animation import FFMpegWriter
+        # writer = FFMpegWriter(fps=60, metadata=dict(artist='Jérémy Jayet'), bitrate=1800)
+        # ani.save("animated_plot.mp4", writer=writer)
+
+        ani.save("animated_plot.html")
+
 
     def filter_lp():
         pass

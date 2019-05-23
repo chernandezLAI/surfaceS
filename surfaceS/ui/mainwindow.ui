@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>surfaceS</string>
   </property>
   <property name="locale">
    <locale language="English" country="Switzerland"/>
@@ -71,10 +71,111 @@
           </property>
          </widget>
         </item>
+        <item row="1" column="0">
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
         <item row="1" column="1">
          <widget class="QLineEdit" name="timeEdit">
           <property name="readOnly">
            <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_3">
+          <property name="text">
+           <string>Max Z:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QLineEdit" name="maxZLineEdit">
+          <property name="inputMethodHints">
+           <set>Qt::ImhPreferNumbers</set>
+          </property>
+          <property name="text">
+           <string>50</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="label_4">
+          <property name="text">
+           <string>Min Z:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QLineEdit" name="minZLineEdit">
+          <property name="inputMethodHints">
+           <set>Qt::ImhPreferNumbers</set>
+          </property>
+          <property name="text">
+           <string>-50</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="1">
+         <spacer name="verticalSpacer">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="5" column="1">
+         <widget class="QLineEdit" name="pathFigureLineEdit">
+          <property name="text">
+           <string>figure.eps</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="0">
+         <widget class="QLabel" name="saveFigPathLineEdit">
+          <property name="text">
+           <string>Path of the figure:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="0">
+         <spacer name="horizontalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="6" column="1">
+         <widget class="QPushButton" name="saveFigureButton">
+          <property name="text">
+           <string>Save</string>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="1">
+         <widget class="QPushButton" name="saveAnimationButton">
+          <property name="text">
+           <string>Save animation</string>
           </property>
          </widget>
         </item>
@@ -185,7 +286,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QGroupBox" name="groupBox">
+       <widget class="QGroupBox" name="signalGeneratorGroupBox">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
           <horstretch>1</horstretch>
@@ -201,27 +302,17 @@
         <property name="title">
          <string>Signal generator</string>
         </property>
-        <layout class="QVBoxLayout" name="verticalLayout_4">
-         <item>
-          <widget class="QGraphicsView" name="graphicsView_2">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-          </widget>
-         </item>
+        <layout class="QVBoxLayout" name="signalGeneratorLayout">
          <item>
           <layout class="QGridLayout" name="gridLayout_2">
-           <item row="2" column="2">
-            <widget class="QPushButton" name="sgSendButton">
+           <item row="1" column="1">
+            <widget class="QPushButton" name="sgChooseFileButton">
              <property name="text">
-              <string>Send</string>
+              <string>Choose...</string>
              </property>
             </widget>
            </item>
-           <item row="0" column="1">
+           <item row="0" column="0">
             <widget class="QLineEdit" name="sgSerialPortEdit">
              <property name="readOnly">
               <bool>true</bool>
@@ -231,31 +322,46 @@
              </property>
             </widget>
            </item>
-           <item row="1" column="2">
-            <widget class="QPushButton" name="sgChooseFileButton">
-             <property name="text">
-              <string>Choose...</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
+           <item row="1" column="0">
             <widget class="QLineEdit" name="sgFilePathEdit">
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
              <property name="placeholderText">
               <string>path</string>
              </property>
             </widget>
            </item>
-           <item row="0" column="2">
+           <item row="2" column="1">
+            <widget class="QPushButton" name="sgSendButton">
+             <property name="text">
+              <string>Send</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
             <widget class="QPushButton" name="sgConnectButton">
              <property name="text">
               <string>Connect</string>
              </property>
             </widget>
            </item>
-           <item row="2" column="1">
-            <widget class="QPushButton" name="sgLoadButton">
-             <property name="text">
-              <string>Load</string>
+           <item row="2" column="0">
+            <widget class="QSpinBox" name="sgARBSelector">
+             <property name="readOnly">
+              <bool>false</bool>
+             </property>
+             <property name="buttonSymbols">
+              <enum>QAbstractSpinBox::UpDownArrows</enum>
+             </property>
+             <property name="prefix">
+              <string>ARB </string>
+             </property>
+             <property name="minimum">
+              <number>1</number>
+             </property>
+             <property name="maximum">
+              <number>3</number>
              </property>
             </widget>
            </item>
@@ -419,7 +525,6 @@ coordinates</string>
     <addaction name="actionOpenDataFile"/>
     <addaction name="actionOpenExperimentFile"/>
     <addaction name="actionSaveExperimentFile"/>
-    <addaction name="actionSave_as"/>
    </widget>
    <addaction name="menusurfaceS"/>
   </widget>

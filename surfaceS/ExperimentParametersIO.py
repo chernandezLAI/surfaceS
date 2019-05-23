@@ -27,7 +27,7 @@
  ======================
 
  *Author:* [Jérémy Jayet](mailto:jeremy.jayet@epfl.ch)
- *Last modification:* 02.05.2019
+ *Last modification:* 24.05.2019
 
  This module implements the different features of the GUI. The layout itself is
  described in the [mainwindow.ui](ui/mainwindow.ui) file.
@@ -43,6 +43,7 @@ def getDefaultParameters():
      """
     experimentParameters = {}
     experimentParameters['cnc_port'] = "COM5"
+    experimentParameters['delay_before_measuring'] = 0.2
     experimentParameters['start_x'] = -270.0
     experimentParameters['start_y'] = -232.0
     experimentParameters['start_z'] = -2.003

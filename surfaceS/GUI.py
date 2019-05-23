@@ -27,7 +27,7 @@
  ======================
 
  *Author:* [Jérémy Jayet](mailto:jeremy.jayet@epfl.ch)
- *Last modification:* 13.05.2019
+ *Last modification:* 24.05.2019
 
  This module implements the different features of the GUI. The layout itself is
  described in the [mainwindow.ui](ui/mainwindow.ui) file.
@@ -44,6 +44,7 @@ import sys
 import logging as log
 import json
 import pandas as pd
+import numpy as np
 
 from ui.mainwindow import Ui_MainWindow as MainWindow
 
@@ -76,6 +77,8 @@ class Gui(QMainWindow, MainWindow):
         self.isOscilloscopeConnected = False
         self.isCncConnected = False
         self.isSignalGeneratorConnected = False
+
+        self.signal = None
 
         self.experimentParameters = {}
         self.setExperimentParameters(ExpParamIO.getDefaultParameters())
@@ -152,6 +155,11 @@ class Gui(QMainWindow, MainWindow):
 
         self.createPlot()
 
+        self.maxZLineEdit.textChanged.connect(self.update_plot_limits)
+        self.minZLineEdit.textChanged.connect(self.update_plot_limits)
+
+        self.saveFigureButton.clicked.connect(self.save_main_plot)
+
         self.actionOpenDataFile.triggered.connect(self.selectDataFile)
 
         self.actionOpenExperimentFile.triggered.connect(self.selectExperimentFile)
@@ -165,6 +173,11 @@ class Gui(QMainWindow, MainWindow):
 
         self.sgConnectButton.clicked.connect(self.connectSg)
         self.sgSerialPortEdit.setText(self.experimentParameters['sg_port'])
+
+        self.createSignalPlot()
+
+        self.sgChooseFileButton.clicked.connect(self.selectSignalFile)
+        self.sgSendButton.clicked.connect(self.sendSignalToSignalGenerator)
 
         #self.osc.connect(self.experimentParameters['osc_ip'])
         #self.sg.connect(self.experimentParameters['sg_port'])
@@ -224,6 +237,50 @@ class Gui(QMainWindow, MainWindow):
             self.sg.disconnect()
             self.isSignalGeneratorConnected = False
             self.sgConnectButton.setText("Connect")
+
+    def selectSignalFile(self):
+        """
+         Loads the signal from a CSV file.
+         """
+        log.debug("Selecting signal file")
+        def setFile(filePath):
+            self.signalPath = filePath
+            self.signal = np.loadtxt(filePath, dtype=np.uint16, delimiter=",")
+            if len(self.signal.shape) == 1:
+                self.signalPlot.plot(self.signal)
+                self.sgFilePathEdit.setText(filePath)
+            else:
+                self.error("Error opening signal file, wrong format", "Signal file error")
+                log.error("Error opening signal file, wrong format")
+
+        #dialog = QFileDialog("Select the signal file.")
+        dialog = QFileDialog()
+        dialog.setFileMode(QFileDialog.AnyFile)
+        dialog.fileSelected.connect(setFile)
+        if dialog.exec_():
+            log.debug(f'Signal file selected')
+
+    def sendSignalToSignalGenerator(self):
+        if self.isSignalGeneratorConnected:
+            try:
+                log.debug(self.sgARBSelector.value())
+                self.sg.setArbitraryWaveform(self.signal, register=self.sgARBSelector.value(), name="PIEZO_1")
+            except Exception as e:
+                errorMsg = f'An error occured during the setting of the signal: {str(e)}'
+                log.error(errorMsg)
+                self.error(errorMsg, "Error sending signal")
+        else:
+            self.error("The signal generator is not connected.", "Signal generator not connected")
+            log.warning("The signal generator is not connected. Cannot send the signal.")
+
+    def createSignalPlot(self):
+        """
+         Creates the plot widget but does not draw anything.
+         """
+
+        self.signalPlot = SG.SignalPlot(self.centralwidget)
+        self.signalGeneratorLayout.addWidget(self.signalPlot)
+
 
 ################################################################################
 #
@@ -377,6 +434,7 @@ class Gui(QMainWindow, MainWindow):
          Initializes and draw the main plot.
          """
         self.mainPlot.init_plot(self.data)
+        self.saveAnimationButton.clicked.connect(self.mainPlot.save_animation)
 
     def update_plot_in_time(self, fraction):
         """
@@ -384,7 +442,19 @@ class Gui(QMainWindow, MainWindow):
          """
         self.mainPlot.update_plot(time=fraction)
         time = self.data.get_time_scale()*fraction/1000
-        self.timeEdit.setText(f'{time} ms')
+        self.timeEdit.setText(f'{time} s')
+
+    def update_plot_limits(self):
+        """
+            Update the plot update limits.
+        """
+        upString = self.maxZLineEdit.text()
+        downString = self.minZLineEdit.text()
+
+        if Gui.is_number(upString) and Gui.is_number(downString):
+            self.mainPlot.setZLimits(float(upString), float(downString))
+        else:
+            self.error("This Z limit is not a number. Please, change it.", "Z limit NAN")
 
 
     def selectDataFile(self):
@@ -398,7 +468,7 @@ class Gui(QMainWindow, MainWindow):
                 self.data = MeasureDataset.MeasureDataset.load_from(filePath)
                 self.initPlot()
             except Exception as e:
-                log.error("Error opening data file" + str(e))
+                log.error("Error opening data file: " + str(e))
 
 
         #dialog = QFileDialog("Select the signal file.")
@@ -407,6 +477,13 @@ class Gui(QMainWindow, MainWindow):
         dialog.fileSelected.connect(setFile)
         if dialog.exec_():
             log.debug(f'File selected : {self.dataFile}')
+
+    def save_main_plot(self):
+        file = self.pathFigureLineEdit.text()
+        try:
+            self.mainPlot.saveFigure(file)
+        except Exception as e:
+            self.error(str(e), "Error saving figure")
 
 ################################################################################
 #
@@ -446,3 +523,10 @@ class Gui(QMainWindow, MainWindow):
         msg.setWindowTitle(title)
         msg.setStandardButtons(QMessageBox.Ok)
         msg.exec_()
+
+    def is_number(s):
+        try:
+            float(s)
+            return True
+        except ValueError:
+            return False

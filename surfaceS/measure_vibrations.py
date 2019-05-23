@@ -26,9 +26,9 @@ The ``Measure vibrations`` module
 =================================
 
 *Author:* [Jérémy Jayet](mailto:jeremy.jayet@epfl.ch)
-*Last modification:* 09.05.2019
+*Last modification:* 24.05.2019
 
-In this scenario, we want to measure the vibration on an array full of points.
+In this scenario, we measure the vibration on an array full of points.
 
 """
 
@@ -128,19 +128,20 @@ class SurfaceVibrationsScanner():
         measuring = True
         nbPoint = self.nbPointX * self.nbPointY
 
-        xpoint = 1
-        ypoint = 1
+        xpoint = 0
+        ypoint = 0
+        xIncrement = 1
 
         data = pd.DataFrame()
+
+        targetX = xpoint*self.experimentParameters['step_x'] + self.startX
+        targetY = ypoint*self.experimentParameters['step_y'] + self.startY
 
         self.cnc.goTo(x=self.startX, y=self.startY, event=positionLock)
 
         self.signalGenerator.setOutput(state=True)
 
         while measuring:
-            targetX = xpoint*self.experimentParameters['step_x'] + self.startX
-            targetY = ypoint*self.experimentParameters['step_y'] + self.startY
-
             log.debug("Start signal and acquisition")
             #time.sleep(2)
             self.osc.setTrigger(self.experimentParameters['trigger_level'], \
@@ -150,11 +151,23 @@ class SurfaceVibrationsScanner():
                                 self.experimentParameters['unit_volt_division'])
             log.debug("Waiting to be in position...")
             positionLock.wait()
-            #time.sleep(1)
+            log.debug("In position !")
             positionLock.clear()
+            time.sleep(self.experimentParameters['delay_before_measuring'])
             self.signalGenerator.burst()
             time.sleep(self.experimentParameters['time_division']*0.01) # Time in ms
 
+            # Count the number of point measured
+            xpoint += xIncrement
+            if xpoint >= self.nbPointX or xpoint < 0 :
+                xIncrement = -xIncrement
+                xpoint += xIncrement
+                ypoint +=1
+                if ypoint > self.nbPointY:
+                    measuring = False
+
+            targetX = xpoint*self.experimentParameters['step_x'] + self.startX
+            targetY = ypoint*self.experimentParameters['step_y'] + self.startY
             log.debug(f'Going to {targetX},{targetY}')
             self.cnc.goTo(x=targetX, y=targetY, event=positionLock)
 
@@ -162,14 +175,6 @@ class SurfaceVibrationsScanner():
             data[f'{targetX},{targetY}'] = tmpData['data']
 
             log.info("Measure done !")
-
-            # Count the number of point measured
-            xpoint += 1
-            if xpoint > self.nbPointX :
-                xpoint = 1
-                ypoint +=1
-                if ypoint > self.nbPointY:
-                    measuring = False
 
         self.signalGenerator.setOutput(state=False)
 

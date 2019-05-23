@@ -26,7 +26,7 @@
  ======================
 
  *Author:* [Jérémy Jayet](mailto:jeremy.jayet@epfl.ch)
- *Last modification:* 2.05.2019
+ *Last modification:* 24.05.2019
 
  This module controls the CNC. It provides a useful interface to send commands
  to the cnc while keeping the control asynchronous.
@@ -244,8 +244,8 @@ class Cnc(threading.Thread):
             self.y = Y
             self.z = Z
 
-        diffX = self.targetX - self.x
-        diffY = self.targetY - self.y
+        diffX = abs(self.targetX - self.x)
+        diffY = abs(self.targetY - self.y)
         if (diffX < 0.05) and (diffY < 0.05):
             #log.debug("CNC in position. Setting the event.")
             try:

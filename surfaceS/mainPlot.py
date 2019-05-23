@@ -142,8 +142,8 @@ class MainPlot(FigureCanvas):
         # self.zLimUp = np.amax(self.z)
         # diff = self.zLimUp-self.zLimDown
         # if diff < 255:
-        #     self.zLimUp = self.zLimDown + diff/2 + 128
-        #     self.zLimDown = self.zLimDown + diff/2 - 128
+        #     self.zLimUp = self.zLimDown + diff/2
+        #     self.zLimDown = self.zLimDown + diff/2
         # self.ax.set_zlim(self.zLimDown, self.zLimUp)
         self.draw()
 
@@ -164,3 +164,6 @@ class MainPlot(FigureCanvas):
             self.zLimUp = up
             self.ax.set_zlim(self.zLimDown, self.zLimUp)
             self.draw()
+
+    def filter_lp():
+        pass

@@ -383,7 +383,7 @@ class Gui(QMainWindow, MainWindow):
          Changes the time of the plot and redraw it.
          """
         self.mainPlot.update_plot(time=fraction)
-        time = self.data.get_time_scale*fraction/1000
+        time = self.data.get_time_scale()*fraction/1000
         self.timeEdit.setText(f'{time} ms')
 
 

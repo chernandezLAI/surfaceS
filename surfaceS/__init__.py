@@ -40,3 +40,5 @@ if __name__ == '__main__':
     gui.show()
 
     app.exec_()
+
+    log.shutdown()

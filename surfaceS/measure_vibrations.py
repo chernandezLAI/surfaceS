@@ -133,14 +133,13 @@ class SurfaceVibrationsScanner():
 
         data = pd.DataFrame()
 
+        self.cnc.goTo(x=self.startX, y=self.startY, event=positionLock)
+
         self.signalGenerator.setOutput(state=True)
 
         while measuring:
             targetX = xpoint*self.experimentParameters['step_x'] + self.startX
             targetY = ypoint*self.experimentParameters['step_y'] + self.startY
-
-            log.debug(f'Going to {targetX},{targetY}')
-            self.cnc.goTo(x=targetX, y=targetY, event=positionLock)
 
             log.debug("Start signal and acquisition")
             #time.sleep(2)
@@ -151,10 +150,13 @@ class SurfaceVibrationsScanner():
                                 self.experimentParameters['unit_volt_division'])
             log.debug("Waiting to be in position...")
             positionLock.wait()
-            time.sleep(1)
+            #time.sleep(1)
             positionLock.clear()
             self.signalGenerator.burst()
-            time.sleep(1)
+            time.sleep(self.experimentParameters['time_division']*0.01) # Time in ms
+
+            log.debug(f'Going to {targetX},{targetY}')
+            self.cnc.goTo(x=targetX, y=targetY, event=positionLock)
 
             tmpData = self.osc.acquire(readOnly=True, channel=self.experimentParameters['vibrometer_channel'])
             data[f'{targetX},{targetY}'] = tmpData['data']

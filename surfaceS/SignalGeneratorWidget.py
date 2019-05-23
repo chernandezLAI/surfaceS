@@ -54,7 +54,6 @@ class SignalGeneratorWidget(QVBoxLayout):
         self.mLoadButton.clicked.connect(self.load)
 
     def load(self):
-
         samplerate, data = wavfile.read(self.mFilePath)
 
         # create an axis

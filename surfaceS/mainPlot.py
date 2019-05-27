@@ -138,9 +138,9 @@ class MainPlot(FigureCanvas):
         log.debug(f'size pX = {pX.size}, size pY = {pY.size}, shape z ={self.z.shape}')
         #log.debug(f'shape z ={self.z.shape}')
 
-        print(self.z)
-        print(pX)
-        print(pY)
+        #print(self.z)
+       # print(pX)
+        #print(pY)
         #print(self.listX)
         #print(self.listY)
 
@@ -184,20 +184,93 @@ class MainPlot(FigureCanvas):
         transparent=False, bbox_inches=None, pad_inches=0.1,
         frameon=None, metadata=None)
 
-    def init_anim(self):
-        self.update_plot(0)
-
-    def iterate_anim(self, frame):
-        self.update_plot(frame, self.datalength)
-
     def save_animation(self):
-        ani = animation.FuncAnimation(self.fig, self.iterate_anim, init_func=self.init_anim, interval=10, blit=True, save_count=50)
 
-        # from matplotlib.animation import FFMpegWriter
-        # writer = FFMpegWriter(fps=60, metadata=dict(artist='Jérémy Jayet'), bitrate=1800)
-        # ani.save("animated_plot.mp4", writer=writer)
+        #numberOfFrame = self.data.shape[0]
+        numberOfFrame = 50000
+        jumpSize = 16
 
-        ani.save("animated_plot.html")
+        fig = Figure(figsize=(8, 8), dpi=150)
+        ax = fig.gca(projection='3d')
+
+        self.canvas = FigureCanvas(fig)
+
+        tmpHead = self.data.columns
+        self.animX = np.empty(tmpHead.size)
+        self.animY = np.empty(tmpHead.size)
+        self.animListX = []
+        self.animListY = []
+
+        self.animZ = []
+
+        def init_anim():
+            for i in range(1,tmpHead.size):
+                coord = tmpHead[i].split(",")
+                try:
+                    self.animX[i-1] = float(coord[0])
+                    self.animY[i-1] = float(coord[1])
+                except Exception as e:
+                    self.animX[i-1] = 0.0
+                    self.animY[i-1] = 0.0
+                    log.warning(f'Problem converting coordinates, {str(e)}')
+                #z[i-1] = data.iloc[t,i-1]
+
+            self.animListX = np.unique(self.animX)
+            self.animListY = np.unique(self.animY)
+            self.animListX = np.delete(self.animListX, self.animListX.size-1)
+            self.animListY = np.delete(self.animListY, self.animListY.size-1)
+
+            self.animZ = np.empty((self.animListX.size,self.animListY.size))
+            return iterate_anim(1)
+
+        def iterate_anim(frame):
+            t = jumpSize*frame+38880
+            log.debug(f't={t}/{numberOfFrame}')
+
+            time = self.dataset.get_time_scale()*t/numberOfFrame
+
+            ax.clear()
+
+            i = 0
+            # try:
+            #     if(listX == None):
+            #         return
+            # except Exception as e:
+            #     log.warning(str(e))
+
+            for uX in self.animListX:
+                tt = np.where(self.animX==uX)
+                j = 0
+                for uY in self.animListY:
+                    tz = np.where(self.animY==uY)
+                    zidx = self.findCoincidentIdx(tt[0], tz[0])
+                    if zidx >= 0:
+                        #log.debug(f'Registering...')
+                        self.animZ[i][j] = self.data.iloc[t,zidx+1]*self.dataset.zScale
+                    else:
+                        self.animZ[i][j] = 0
+                    j = j+1
+                i = i+1
+
+            pX, pY = np.meshgrid(self.animListX,self.animListY, indexing='ij')
+
+            # Plot the surface.
+            surf = ax.plot_surface(pX, pY, self.animZ, cmap=cm.coolwarm, linewidth=0, antialiased=True)
+            ax.set_zlabel('Amplitude in $\mu m$')
+            fig.suptitle('time: {:03.3f} $\mu s$'.format(1000000.0*time))
+            ax.set_zlim(self.zLimDown, self.zLimUp)
+
+            return surf,
+
+        ani = animation.FuncAnimation(fig, iterate_anim, init_func=init_anim, interval=10, blit=True, save_count=int(numberOfFrame/jumpSize))
+
+        plt.show()
+
+        from matplotlib.animation import FFMpegWriter
+        writer = FFMpegWriter(fps=60, metadata=dict(artist='Jérémy Jayet'), bitrate=1800)
+        ani.save("animated_plot_FINAL_4.mp4", writer=writer)
+
+        #ani.save("animated_plot_FINAL_2.mp4")
 
 
     def filter_lp():

@@ -140,52 +140,42 @@ class Oscilloscope():
 
     def setTrigger(self,triggerLevel:float=1,triggerDelay:float=0,channel:int=1,triggerMode:string="SINGLE", unitTriggerLevel:string="V"):
         """
-         Changes trigger parameters
+        Changes trigger parameters
 
-         :param triggerLevel: Level of the trigger
-         :type triggerLevel: float
-         :param triggerDelay: Delay of the trigger. The unit is the one specified in the setGrid() method.
-         :type triggerDelay: string
-         :param channel: Channel on which you need to set the trigger
-         :type command: int
-         :param triggerMode: Mode of the trigger. Either `AUTO`, `NORMAL`, `SINGLE` or `STOP`.
-         :type triggerMode: string
-         :param unitTriggerLevel: Unit for the trigger level. See setGrid() for available options.
-         :type unitTriggerLevel: string
+        :param triggerLevel: Level of the trigger
+        :type triggerLevel: float
+        :param triggerDelay: Delay of the trigger. The unit is the one specified in the setGrid() method.
+        :type triggerDelay: string
+        :param channel: Channel on which you need to set the trigger
+        :type command: int
+        :param triggerMode: Mode of the trigger. Either `AUTO`, `NORMAL`, `SINGLE` or `STOP`.
+        :type triggerMode: string
+        :param unitTriggerLevel: Unit for the trigger level. See setGrid() for available options.
+        :type unitTriggerLevel: string
 
-         .. seealso:: setGrid()
-         .. todo:: Make more tests, recorde trigger state to use this info in
-         the acquire method.
-         """
+        .. seealso:: setGrid()
+
+        """
         self.write(f'C{channel}:TRIG_LEVEL {triggerLevel}{unitTriggerLevel}')
         self.write(f'TRIG_DELAY {triggerDelay}')
         self.write(f'TRIG_MODE {triggerMode}')
 
     def setGrid(self, timeDivision:float=0.0001,voltDivision:float=1.0,channel:int=1,unitVoltDivision:string="V",unitTimeDivision:string="S"):
         """
-         Changes grid parameters
+        Changes grid parameters
 
-         :param timeDivision: The time per division.
-         :type timeDivision: float
-         :param voltDivision: The voltage per division.
-         :type voltDivision: float
-         :param channel: The channel on which the modification must be applied.
-         Has only effect on the voltage per division parameter.
-         :type channel: int
-         :param unitVoltDivision: Unit to apply to voltDivision (V, MV, UV)
-         :type unitVoltDivision: string
-         :param unitTimeDivision: Unit to apply to timeDivision (S, MS, US, NS)
-         :type unitTimeDivision: string
+        :param timeDivision: The time per division.
+        :type timeDivision: float
+        :param voltDivision: The voltage per division.
+        :type voltDivision: float
+        :param channel: The channel on which the modification must be applied. Has only effect on the voltage per division parameter.
+        :type channel: int
+        :param unitVoltDivision: Unit to apply to voltDivision (V, MV, UV)
+        :type unitVoltDivision: string
+        :param unitTimeDivision: Unit to apply to timeDivision (S, MS, US, NS)
+        :type unitTimeDivision: string
 
-         :Example:
-
-         To be added
-
-         .. seealso::
-         .. warning::
-         .. note::
-         .. todo:: Add an example
-         """
+        """
 
         self.channelParameters[channel]['volt_division'] = voltDivision
         self.channelParameters[channel]['time_division'] = timeDivision

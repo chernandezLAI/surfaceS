@@ -80,6 +80,11 @@ class Cnc(threading.Thread):
         self.statusCallback = printStatus
 
     def run(self):
+        """
+         Run the thread managing the CNC.
+
+         .. seealso:: stop()
+        """
         self.cncLock.acquire()
         self.running = True
 
@@ -121,21 +126,60 @@ class Cnc(threading.Thread):
             log.debug("CNC main loop left")
             self.cnc.close()
     def periodic_timer(self):
+        """
+         Internal function running in parallel of the CNC thread. It sends
+         regularly commands te the CNC to get its status.
+         """
         while self.running:
           self.sendStatusQuery()
           time.sleep(REPORT_INTERVAL)
 
     def sendCommand(self, command:string="?"):
+        """
+         Add a command to the command queue and return. The command will be
+         executed asynchronously.
+
+         :param command: The command to send
+         :type port: string
+         """
         self.commandQueue.put(command)
         #self.queueLock.release()
         pass
 
     def jog(self, axis:string="x", distance:float=1):
+        """
+         Execute a jogging movement. The jogging is asynchronous.
+
+         :param axis: The axis that will jog
+         :type axis: string
+
+         :param distance: Distance of the jog.
+         :type distance: float
+         """
         self.sendCommand("G91")
         axis.capitalize()
         self.sendCommand(f'$J={axis}{distance} F1000')
 
     def goTo(self, x:float=9999,y:float=9999,z:float=9999, feedrate:int=1000, event:threading.Event=None):
+        """
+
+         The CNC will move to the position. The position must be in **machine**
+         coordinates. The default feedrate is 1000 mm/min. When the machine is
+         in position, it triggers a threading.Event to indicates an eventual
+         asynchronous task that the CNC is in position.
+
+         :param x: x position
+         :type x: float
+         :param y: y position
+         :type y: float
+         :param z: z position
+         :type z: float
+         :param feedrate: Feedrate (speed)
+         :type feedrate: int
+         :param event: Event that will be set when the CNC is in position
+         :type event: threading.Event
+
+         """
         self.sendCommand("G90")
         command = " " # Do not delete the whitespace !
         if x != 9999:
@@ -154,6 +198,21 @@ class Cnc(threading.Thread):
             self.setPositionEvent(event, x, y)
 
     def goToWorking(self, x:float=9999,y:float=9999,z:float=9999, feedrate:int=1000, event:threading.Event=None):
+        """
+          Same as :py:func:`goTo`, but this command uses **working** coordinates.
+
+          :param x: x position
+          :type x: float
+          :param y: y position
+          :type y: float
+          :param z: z position
+          :type z: float
+          :param feedrate: Feedrate (speed)
+          :type feedrate: int
+          :param event: Event that will be set when the CNC is in position
+          :type event: threading.Event
+
+          """
         self.sendCommand("G90")
         command = " " # Do not delete the whitespace !
         if x != 9999:
@@ -172,16 +231,35 @@ class Cnc(threading.Thread):
             self.setPositionEvent(event, x, y)
 
     def home(self):
+        """
+          Home the CNC.
+
+          """
         self.sendCommand("$H")
     def unlock(self):
+        """
+          Unlock the CNC.
+
+          """
         self.sendCommand("$X")
 
     def connect(self, device:string):
+        """
+          Connect to the CNC device. Must be called before the :py:func:`run`.
+
+          :param device: Device file path
+          :type device: string
+
+          """
         self.deviceFile = device
         testCnc = serial.Serial(self.deviceFile,BAUD_RATE)
         testCnc.close()
 
     def stop(self):
+        """
+          Stop the CNC thread.
+
+          """
         log.debug("CNC thread stopping...")
         if self.running:
             self.running = False
@@ -190,12 +268,30 @@ class Cnc(threading.Thread):
         log.debug("CNC thread stopped")
 
     def __del__(self):
+        """
+          Destructor of the CNC class. Try to stop the thread.
+
+          """
         self.stop()
 
     def updateStatusCallback(self, cb):
+        """
+          This function is used to set the callback that is called each time
+          the status is updated.
+
+          :param cb: Callback function
+          :type cb: function
+
+          .. seealso:: :py:func:`periodic_timer`
+
+          """
         self.statusCallback = cb
 
     def setPositionEvent(self, event:threading.Event, X, Y):
+        """
+          To be completed
+
+          """
         self.positionEvent = event
         self.targetX = X
         self.targetY = Y

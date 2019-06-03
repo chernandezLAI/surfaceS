@@ -24,10 +24,10 @@
 
 """
  The ``MainPlot`` module
- ======================
+ =======================
 
  *Author:* [Jérémy Jayet](mailto:jeremy.jayet@epfl.ch)
- *Last modification:* 09.05.2019
+ *Last modification:* 04.06.2019
 
  In this module, the main plot is created and managed.
 
@@ -55,7 +55,6 @@ Z_LIM_UP_DEFAULT = 50
 Z_LIM_DOWN_DEFAULT = -50
 
 class MainPlot(FigureCanvas):
-
     def __init__(self, parent=None, width=5, height=4, dpi=100):
         self.fig = Figure(figsize=(width, height), dpi=dpi)
         #self.ax = self.fig.add_subplot(111)
@@ -73,6 +72,17 @@ class MainPlot(FigureCanvas):
         self.zLimUp = Z_LIM_UP_DEFAULT
 
     def init_plot(self, data, type="3D_MAP", args={}):
+        """
+        This function initialize the main plot.
+
+        :param data: The data for the plot.
+        :type data: MeasureDataset
+        :param type: Will be useful to extend the types of plots. Currently supports *3D_MAP*
+        :type type: string
+
+        .. todo:: Implement new type of plots.
+
+        """
         self.type = type
         self.dataset = data
         self.data = data.get_data()
@@ -111,6 +121,15 @@ class MainPlot(FigureCanvas):
         self.update_plot(0)
 
     def update_plot(self, time=0, totalTime=1000):
+        """
+        Update the plot to display a given time. The time will be computed from $time/totalTime$
+
+        :param time: Time to display
+        :type time: int *or* float
+        :param totalTime: Total time to compute the right value.
+        :type totalTime: int *or* float
+
+        """
         if self.ready == False:
             return
         t = time*int(self.data.shape[0] / totalTime)
@@ -169,6 +188,15 @@ class MainPlot(FigureCanvas):
         return -1
 
     def setZLimits(self, up=Z_LIM_UP_DEFAULT, down=Z_LIM_DOWN_DEFAULT):
+        """
+        Set the limits on the Z axis.
+
+        :param up: Upper limit
+        :type up: float
+        :param down: Lower limit
+        :type down: float
+
+        """
         self.zLimDown = down
         self.zLimUp = up
         if self.ready:
@@ -179,13 +207,22 @@ class MainPlot(FigureCanvas):
         orientation='portrait', papertype=None, format=None,
         transparent=False, bbox_inches=None, pad_inches=0.1,
         frameon=None, metadata=None):
+        """
+        Save the figure to the desired file. See Figure.savefig() in matplotlib doc.
+
+        """
         self.fig.savefig(filename, dpi=None, facecolor='w', edgecolor='w',
         orientation='portrait', papertype=None, format=None,
         transparent=False, bbox_inches=None, pad_inches=0.1,
         frameon=None, metadata=None)
 
     def save_animation(self):
+        """
+        Save an animation.
 
+        .. warning:: DEPRECATED. Do not use.
+
+        """
         #numberOfFrame = self.data.shape[0]
         numberOfFrame = 50000
         jumpSize = 16

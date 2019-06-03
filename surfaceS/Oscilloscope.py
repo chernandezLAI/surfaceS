@@ -99,8 +99,6 @@ class Oscilloscope():
          >>> osc.connect()
          >>> osc.printID()
 
-         .. todo:: update example
-
          """
 
         log.debug("Getting identifier of the osc")
@@ -109,7 +107,7 @@ class Oscilloscope():
         log.info(r)
         return r
 
-    def write(self, command:string):
+    def write(self, command:str):
         """
          Send a command to the instrument and blocks until the command has been processed.
 
@@ -132,13 +130,13 @@ class Oscilloscope():
         r = self.query(r"""vbs? 'return=app.WaitUntilIdle(5)' """)
         log.debug(r)
 
-    def query(self, command:string, timeout:int=None):
+    def query(self, command:str, timeout:int=None):
         r = self.osc.query(command)
 
         log.info(r)
         return r
 
-    def setTrigger(self,triggerLevel:float=1,triggerDelay:float=0,channel:int=1,triggerMode:string="SINGLE", unitTriggerLevel:string="V"):
+    def setTrigger(self,triggerLevel:float=1,triggerDelay:float=0,channel:int=1,triggerMode:str="SINGLE", unitTriggerLevel:str="V"):
         """
         Changes trigger parameters
 
@@ -160,7 +158,7 @@ class Oscilloscope():
         self.write(f'TRIG_DELAY {triggerDelay}')
         self.write(f'TRIG_MODE {triggerMode}')
 
-    def setGrid(self, timeDivision:float=0.0001,voltDivision:float=1.0,channel:int=1,unitVoltDivision:string="V",unitTimeDivision:string="S"):
+    def setGrid(self, timeDivision:float=0.0001,voltDivision:float=1.0,channel:int=1,unitVoltDivision:str="V",unitTimeDivision:str="S"):
         """
         Changes grid parameters
 
@@ -215,10 +213,8 @@ class Oscilloscope():
 
         :Example:
 
-        To be added
-
         .. warning:: This function need more testing and maybe a refactoring of its parameters. Its mode of operation should be atomized in the future but this might stay to provide legacy compatibility.
-        .. todo:: Atomize.
+        .. todo:: Atomize the function as much as possible then regroup the sequence in this one (to ensure compatibility).
         """
 
         if readOnly==False:
@@ -259,5 +255,9 @@ class Oscilloscope():
             return res
 
     def disconnect(self):
+        """
+         Disconnect from the DSO.
+
+         """
         self.osc.close()
         self.rm.close()

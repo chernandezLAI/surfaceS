@@ -23,10 +23,10 @@
  ################################################################################
 """
  The ``MeasureDataset`` module
- ======================
+ =============================
 
  *Author:* [Jérémy Jayet](mailto:jeremy.jayet@epfl.ch)
- *Last modification:* 13.05.2019
+ *Last modification:* 04.06.2019
 
  This module is a class to manage experiment data objects.
  The goal is to keep track of all the parameters even after the measurement to
@@ -69,12 +69,33 @@ class MeasureDataset():
         self.timeScale = (NUMBER_TIME_DIVISION_OSC*self.experimentParameters['time_division'])/self.numberOfSamples
 
     def set_data(self, data):
+        """
+        Set the data.
+
+        :param data: The data to store in the MeasureDataset object.
+        :type data: pd.Dataframe
+
+        """
         self.data = data
 
     def get_data(self):
+        """
+        Get the data.
+
+        :return: The data stored in the MeasureDataset object.
+        :rtype: pd.Dataframe
+
+        """
         return self.data
 
     def to_json(self):
+        """
+        Get the object in the form of a JSON string
+
+        :return: The object serialized as a JSON string.
+        :rtype: string
+
+        """
         rootString = {}
 
         try:
@@ -96,6 +117,13 @@ class MeasureDataset():
         return json.dumps(rootString, indent=4)
 
     def from_json(self, inputJson):
+        """
+        Populate the object with a JSON string.
+
+        :param inputJson: The JSON string
+        :type inputJson: string
+
+        """
         rootString = json.loads(inputJson)
 
         try:
@@ -112,12 +140,28 @@ class MeasureDataset():
         self.experimentParameters = ExpParamIO.toExpParamsFromJSON(rootString['experimentParameters'])
 
     def save_to(self, filename):
+        """
+        Save the object as JSON in the specified file.
+
+        :param filename: Path to the file
+        :type filename: string
+
+        """
         fhandle = open(filename, "w")
         fhandle.write(self.to_json())
         fhandle.close()
 
     def load_from(filename):
+        """
+        Creat an object from the specified JSON file.
 
+        :param filename: Path to the file
+        :type filename: string
+
+        :return: The data object
+        :rtype: MeasureDataset
+
+        """
         filterJson =  re.compile('.json')
         filterCSV = re.compile('.csv')
         matchJson = filterJson.search(filename)

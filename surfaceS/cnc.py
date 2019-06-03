@@ -134,19 +134,19 @@ class Cnc(threading.Thread):
           self.sendStatusQuery()
           time.sleep(REPORT_INTERVAL)
 
-    def sendCommand(self, command:string="?"):
+    def sendCommand(self, command:str="?"):
         """
          Add a command to the command queue and return. The command will be
          executed asynchronously.
 
          :param command: The command to send
-         :type port: string
+         :type command: string
          """
         self.commandQueue.put(command)
         #self.queueLock.release()
         pass
 
-    def jog(self, axis:string="x", distance:float=1):
+    def jog(self, axis:str="x", distance:float=1):
         """
          Execute a jogging movement. The jogging is asynchronous.
 
@@ -243,7 +243,7 @@ class Cnc(threading.Thread):
           """
         self.sendCommand("$X")
 
-    def connect(self, device:string):
+    def connect(self, device:str):
         """
           Connect to the CNC device. Must be called before the :py:func:`run`.
 
@@ -289,9 +289,17 @@ class Cnc(threading.Thread):
 
     def setPositionEvent(self, event:threading.Event, X, Y):
         """
-          To be completed
+          Set the position event to be set when the CNC is at the coordinates X
+          and Y.
 
-          """
+          :param event: Event to set.
+          :type event: threading.Event
+          :param X: X coordinate
+          :type X: float
+          :param Y: Y coordinate
+          :type Y: float
+
+        """
         self.positionEvent = event
         self.targetX = X
         self.targetY = Y
@@ -300,9 +308,19 @@ class Cnc(threading.Thread):
         return self.state
 
     def getMachineCoordinates(self):
+        """
+        Return the machine coordinates.
+
+        :return: A tuple containing the 3 coordinates.
+        :rtype: (float,float,float)
+        """
         return (self.x, self.y, self.z)
 
     def zeroWorkingCoordinates(self):
+        """
+        Set the actual position as the zero in **working** coordinates.
+
+        """
         self.workingZeroX = self.x
         self.workingZeroY = self.y
         self.workingZeroZ = self.z
@@ -310,6 +328,10 @@ class Cnc(threading.Thread):
         self.sendCommand("G10 L20 P1 X0 Y0 Z0")
 
     def sendStatusQuery(self):
+        """
+        Ask for the status of the CNC. Internal use only.
+
+        """
         self.cncLock.acquire()
         cmd="?"
         self.cnc.flushInput()

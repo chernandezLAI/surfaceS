@@ -16,6 +16,8 @@ Welcome to surfaceS's documentation!
    modules/cnc
    modules/oscilloscope
    modules/signal_generator
+   modules/MeasureDataset
+   modules/mainPlot
 
    modules/measure_vibrations
 

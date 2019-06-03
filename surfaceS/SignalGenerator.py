@@ -57,7 +57,7 @@ class SignalGenerator():
     def __init__(self, parent=None):
         log.info("New signal generator created")
 
-    def connect(self,port:string="COM6"):
+    def connect(self,port:str="COM6"):
         """
          Connects the signal generator object to the real instrument by the mean
          of a serial connection.

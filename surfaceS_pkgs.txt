@@ -38,4 +38,5 @@ https://repo.anaconda.com/pkgs/main/win-64/pip-19.0.3-py37_0.tar.bz2
 https://repo.anaconda.com/pkgs/main/win-64/matplotlib-3.0.2-py37hc8f65d3_0.tar.bz2
 https://repo.anaconda.com/pkgs/main/win-64/mkl_fft-1.0.10-py37h14836fe_0.tar.bz2
 https://repo.anaconda.com/pkgs/main/win-64/numpy-1.16.2-py37h19fb1c0_0.tar.bz2
+https://repo.anaconda.com/pkgs/main/win-64/pandas-0.24.2-py37ha925a31_0.tar.bz2
 https://repo.anaconda.com/pkgs/main/win-64/scipy-1.2.1-py37h29ff71c_0.tar.bz2

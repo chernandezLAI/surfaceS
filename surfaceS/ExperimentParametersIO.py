@@ -23,14 +23,13 @@
 ################################################################################
 
 """
- The ``GUI`` module
- ======================
+ The ``ExperimentParametersIO`` module
+ =====================================
 
  *Author:* [Jérémy Jayet](mailto:jeremy.jayet@epfl.ch)
- *Last modification:* 24.05.2019
+ *Last modification:* 04.06.2019
 
- This module implements the different features of the GUI. The layout itself is
- described in the [mainwindow.ui](ui/mainwindow.ui) file.
+
 
  """
 
@@ -40,6 +39,7 @@ import logging as log
 def getDefaultParameters():
     """
      Prepare the default values for the experiment.
+
      """
     experimentParameters = {}
     experimentParameters['cnc_port'] = "COM5"
@@ -71,9 +71,29 @@ def getDefaultParameters():
     return experimentParameters
 
 def toJSONFromExpParams(experimentParameters):
+    """
+    Serialize the dictionnary into a JSON string.
+
+    :param experimentParameters: The dictionnary containing the experiment parameters
+    :type experimentParameters: dict
+
+    :return: JSON representation of the experiment parameters
+    :rtype: string
+
+    """
     return json.dumps(experimentParameters, indent=4)
 
 def toExpParamsFromJSON(jsonInput):
+    """
+    Parse a JSON input into the experiment parameters.
+
+    :param jsonInput: JSON representation of the experiment parameters
+    :type jsonInput: string
+
+    :return: The dictionnary containing the experiment parameters
+    :rtype: dict
+
+    """
     try:
         experimentParameters = json.loads(jsonInput)
         return experimentParameters
@@ -82,11 +102,30 @@ def toExpParamsFromJSON(jsonInput):
         return getDefaultParameters()
 
 def readParametersFromFile(filename="experiment_parameters.json"):
+    """
+    Read the parameters from a JSON file.
+
+    :param filename: The path to the file.
+    :type filename: string
+
+    :return: A dictionnary containing the experiment parameters.
+    :rtype: dict
+
+    """
     fhandle = open(filename)
     param = json.load(fhandle)
     fhandle.close()
     return param
 def writeParametersToFile(filename, parameters):
+    """
+    Write the parameters to a JSON file.
+
+    :param filename: The path to the file.
+    :type filename: string
+    :param parameters: The parameters to write.
+    :type parameters: dict
+
+    """
     try:
         fhandle = open(filename, "w")
         fhandle.write(toJSONFromExpParams(parameters))

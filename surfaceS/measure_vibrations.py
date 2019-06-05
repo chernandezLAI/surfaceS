@@ -28,7 +28,7 @@ The ``Measure vibrations`` module
 *Author:* [Jérémy Jayet](mailto:jeremy.jayet@epfl.ch)
 *Last modification:* 24.05.2019
 
-In this scenario, we measure the vibration on an array full of points.
+In this scenario, we measure the vibration on an array of points.
 
 """
 
@@ -93,6 +93,13 @@ class SurfaceVibrationsScanner():
         self.startY = self.experimentParameters['start_y']
 
     def startScanning(self):
+        """
+        Start the scanning process.
+
+        :return: A dataframe containing the measurements.
+        :rtype: pd.Dataframe
+
+        """
         # Configure signal generator
         self.signalGenerator.setChannel(self.channelOnSG)
         self.signalGenerator.setFrequency(self.frequency)

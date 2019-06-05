@@ -222,6 +222,8 @@ class MainPlot(FigureCanvas):
 
         .. warning:: DEPRECATED. Do not use.
 
+        .. todo:: FIX.
+
         """
         #numberOfFrame = self.data.shape[0]
         numberOfFrame = 50000

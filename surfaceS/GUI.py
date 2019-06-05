@@ -27,7 +27,7 @@
  ======================
 
  *Author:* [Jérémy Jayet](mailto:jeremy.jayet@epfl.ch)
- *Last modification:* 24.05.2019
+ *Last modification:* 05.06.2019
 
  This module implements the different features of the GUI. The layout itself is
  described in the [mainwindow.ui](ui/mainwindow.ui) file.
@@ -67,8 +67,9 @@ import MeasureDataset
 class Gui(QMainWindow, MainWindow):
     def __init__(self, parent=None):
         """
-         Initialize the main window.
-         """
+        Initialize the main window.
+
+        """
 
         super(Gui, self).__init__(parent)
         log.debug('Preparing GUI...')
@@ -195,6 +196,7 @@ class Gui(QMainWindow, MainWindow):
          Connect the oscilloscope object to the real instrument.
 
          Also check for errors.
+
          """
         if self.isOscilloscopeConnected == False:
             try:
@@ -221,6 +223,7 @@ class Gui(QMainWindow, MainWindow):
          Connect the signal generator object to the real instrument.
 
          Also check for errors.
+
          """
         if self.isSignalGeneratorConnected == False:
             try:
@@ -241,6 +244,7 @@ class Gui(QMainWindow, MainWindow):
     def selectSignalFile(self):
         """
          Loads the signal from a CSV file.
+
          """
         log.debug("Selecting signal file")
         def setFile(filePath):
@@ -261,6 +265,10 @@ class Gui(QMainWindow, MainWindow):
             log.debug(f'Signal file selected')
 
     def sendSignalToSignalGenerator(self):
+        """
+        Action to send the signal to the signal generator.
+
+        """
         if self.isSignalGeneratorConnected:
             try:
                 log.debug(self.sgARBSelector.value())
@@ -276,6 +284,7 @@ class Gui(QMainWindow, MainWindow):
     def createSignalPlot(self):
         """
          Creates the plot widget but does not draw anything.
+
          """
 
         self.signalPlot = SG.SignalPlot(self.centralwidget)
@@ -291,6 +300,7 @@ class Gui(QMainWindow, MainWindow):
     def connectCNC(self, args):
         """
          Connect to the CNC and set the status callback for the UI.
+
          """
         def cncStatusCallback(state, x, y, z):
             self.machineCoordinatesEdit.setText(f'{state},{x},{y},{z}')
@@ -346,6 +356,10 @@ class Gui(QMainWindow, MainWindow):
 ################################################################################
 
     def updateExpParams(self):
+        """
+        Update the exeriment parameters from the UI.
+
+        """
         try:
             self.experimentParameters = ExpParamIO.toExpParamsFromJSON(self.jsonFormatParameters.toPlainText())
             self.oscilloscopeIPEdit.setText(self.experimentParameters['osc_ip'])
@@ -355,12 +369,20 @@ class Gui(QMainWindow, MainWindow):
             log.error(str(e))
 
     def setExperimentParameters(self,ep):
+        """
+        Set the experiment parameters.
+
+        :param ep: The experiment parameters
+        :type ep: dict
+
+        """
         self.experimentParameters = ep
         self.jsonFormatParameters.setPlainText(ExpParamIO.toJSONFromExpParams(self.experimentParameters))
 
     def selectExperimentFile(self):
         """
          Loads experiment parameters from a file containing the parameters of a previous experiment.
+
          """
         log.debug("Selecting file")
         def setFile(filePath):
@@ -382,6 +404,7 @@ class Gui(QMainWindow, MainWindow):
     def saveExperimentFile(self):
         """
          Save experiment parameters to a file containing the parameters.
+
          """
         log.debug("Saving file")
 
@@ -403,7 +426,8 @@ class Gui(QMainWindow, MainWindow):
 
     def startMeasuring(self):
         """
-         Launches the measurements
+         Launches the measurement process.
+
          """
         if self.isCncConnected and self.isSignalGeneratorConnected and self.isOscilloscopeConnected:
             scanner = mv.SurfaceVibrationsScanner(self.cnc, self.osc, self.sg, self.experimentParameters)
@@ -424,6 +448,7 @@ class Gui(QMainWindow, MainWindow):
     def createPlot(self):
         """
          Creates the plot widget but does not draw anything.
+
          """
 
         self.mainPlot = mainPlot.MainPlot(self.centralwidget)
@@ -432,6 +457,7 @@ class Gui(QMainWindow, MainWindow):
     def initPlot(self):
         """
          Initializes and draw the main plot.
+
          """
         self.mainPlot.init_plot(self.data)
         self.saveAnimationButton.clicked.connect(self.mainPlot.save_animation)
@@ -439,6 +465,7 @@ class Gui(QMainWindow, MainWindow):
     def update_plot_in_time(self, fraction):
         """
          Changes the time of the plot and redraw it.
+
          """
         self.mainPlot.update_plot(time=fraction)
         time = self.data.get_time_scale()*fraction/1000
@@ -460,6 +487,7 @@ class Gui(QMainWindow, MainWindow):
     def selectDataFile(self):
         """
          Loads data from a datafile containing the data of a previous experiment.
+
          """
         log.debug("Selecting file")
         def setFile(filePath):
@@ -479,6 +507,10 @@ class Gui(QMainWindow, MainWindow):
             log.debug(f'File selected : {self.dataFile}')
 
     def save_main_plot(self):
+        """
+        Save the main plot to the specified file (in the UI).
+
+        """
         file = self.pathFigureLineEdit.text()
         try:
             self.mainPlot.saveFigure(file)
@@ -498,10 +530,14 @@ class Gui(QMainWindow, MainWindow):
         self.closeRessources()
 
     def closeRessources(self):
+        """
+        Free all the ressources.
+
+        """
         log.debug("Trying to close ressources")
         try:
             self.cnc.stop()
-            self.cnc.join()
+            #self.cnc.join()
             self.sg.disconnect()
             self.osc.disconnect()
         except Exception as e:
@@ -516,6 +552,15 @@ class Gui(QMainWindow, MainWindow):
 ################################################################################
 
     def error(self, message, title="Error"):
+        """
+        Generate an error dialog.
+
+        :param message: Message to display in the dialog
+        :type message: string
+        :param title: Title of the dialog
+        :type title: string
+
+        """
         msg = QMessageBox()
         msg.setIcon(QMessageBox.Critical)
 
@@ -525,6 +570,16 @@ class Gui(QMainWindow, MainWindow):
         msg.exec_()
 
     def is_number(s):
+        """
+        Test if an object is a number.
+
+        :param s: object to test
+        :type s: object
+
+        :return: Boolean indicating if the object is a numbe
+        :rtype: boolean
+
+        """
         try:
             float(s)
             return True

@@ -78,6 +78,19 @@ TRIGGER_DELAY = -20
 log.basicConfig(level=log.DEBUG)
 
 class SurfaceVibrationsScanner():
+    """
+    Class which handle the measuring process.
+
+    :param cnc: The handler which controls the CNC.
+    :type cnc: CNC.Cnc
+    :param osc: The handler which controls the oscilloscope.
+    :type osc: Osc.Oscilloscope
+    :param sg: The handler which controls the signal generator.
+    :type sg: SG.SignalGenerator
+    :param params: The experiment parameters
+    :type params: dict
+
+    """
     def __init__(self, cnc, osc, sg, params):
         self.experimentParameters = params
         self.signalGenerator = sg

@@ -90,6 +90,14 @@ compatible as they added another layer for reliability.
 
 Go to the `VICP install page`_, download and install the software.
 
+Compile the GUI
+^^^^^^^^^^^^^^^
+Only when changes have been done to the GUI in the QT Designer
+
+use:
+    pyuic5 surfaceS\ui\mainwindow.ui -o surfaceS\ui\mainwindow.py
+
+
 Start the software
 ^^^^^^^^^^^^^^^^^^
 

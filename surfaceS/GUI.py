@@ -175,6 +175,13 @@ class Gui(QMainWindow, MainWindow):
         self.sgConnectButton.clicked.connect(self.connectSg)
         self.sgSerialPortEdit.setText(self.experimentParameters['sg_port'])
 
+        def change_CNC_Port(port):
+            self.experimentParameters["cnc_port"] = port
+            #self.updateExpParams()
+
+
+        self.portCNCEdit.textChanged.connect(change_CNC_Port)
+
         self.createSignalPlot()
 
         self.sgChooseFileButton.clicked.connect(self.selectSignalFile)

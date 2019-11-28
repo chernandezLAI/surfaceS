@@ -177,6 +177,7 @@ class Gui(QMainWindow, MainWindow):
 
         def change_CNC_Port(port):
             self.experimentParameters["cnc_port"] = port
+            self.jsonFormatParameters.setPlainText(ExpParamIO.toJSONFromExpParams(self.experimentParameters))
             #self.updateExpParams()
 
 

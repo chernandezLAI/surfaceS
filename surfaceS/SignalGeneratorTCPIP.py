@@ -499,6 +499,43 @@ class SignalGeneratorTCPIP():
         log.debug(cmd + " : OK\n")
         log.debug("BURST !")
 
+# This import registers the 3D projection, but is otherwise unused.
+from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused impor
+from matplotlib import cm
+import matplotlib.animation as animation
+
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
+from matplotlib.figure import Figure
+
+from PyQt5 import QtCore, QtWidgets
+
+class SignalPlot(FigureCanvas):
+    def __init__(self, parent=None, width=5, height=4, dpi=100):
+        self.fig = Figure(figsize=(width, height), dpi=dpi)
+
+        FigureCanvas.__init__(self, self.fig)
+
+        FigureCanvas.setSizePolicy(self,
+                                   QtWidgets.QSizePolicy.Expanding,
+                                   QtWidgets.QSizePolicy.Expanding)
+        FigureCanvas.updateGeometry(self)
+
+        self.ax = self.fig.add_subplot(111)
+
+        self.ready = True
+
+    def plot(self, data):
+        # discards the old graph
+        self.ax.clear()
+
+        # plot data
+        self.ax.plot(data, '*-')
+
+        # refresh canvas
+        self.draw()
+
+
 #
 # rm = visa.ResourceManager()
 # print(rm)

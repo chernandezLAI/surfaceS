@@ -42,7 +42,7 @@ def getDefaultParameters():
 
      """
     experimentParameters = {}
-    experimentParameters['cnc_port'] = "COM5"
+    experimentParameters['cnc_port'] = "COM10"
     experimentParameters['delay_before_measuring'] = 0.2
     experimentParameters['start_x'] = -270.0
     experimentParameters['start_y'] = -232.0
@@ -52,10 +52,11 @@ def getDefaultParameters():
     experimentParameters['step_x'] = 10.0
     experimentParameters['step_y'] = 10.0
     experimentParameters['sg_port'] = "COM6"
+    experimentParameters['sg_ip'] = "128.178.201.37"
     experimentParameters['wave_type'] = "SINE"
     experimentParameters['frequency'] = 10000
     experimentParameters['channel_sg'] = 1
-    experimentParameters['osc_ip'] = "128.178.201.9"
+    experimentParameters['osc_ip'] = "128.178.201.12"
     experimentParameters['vibrometer_channel'] = 2
     experimentParameters['reference_channel'] = 1
     experimentParameters['unit_time_division'] = "MS"

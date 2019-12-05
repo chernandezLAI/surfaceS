@@ -57,7 +57,7 @@ from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as Navigatio
 from matplotlib.figure import Figure
 
 import Oscilloscope as Osc
-import SignalGenerator as SG
+import SignalGeneratorTCPIP as SG
 import cnc as CNC
 import measure_vibrations as mv
 import mainPlot
@@ -86,7 +86,7 @@ class Gui(QMainWindow, MainWindow):
 
         self.jsonFormatParameters.textChanged.connect(self.updateExpParams)
 
-        self.sg = SG.SignalGenerator()
+        self.sg = SG.SignalGeneratorTCPIP()
         self.osc = Osc.Oscilloscope()
         self.cnc = CNC.Cnc()
 
@@ -173,7 +173,7 @@ class Gui(QMainWindow, MainWindow):
         self.oscilloscopeIPEdit.setText(self.experimentParameters['osc_ip'])
 
         self.sgConnectButton.clicked.connect(self.connectSg)
-        self.sgSerialPortEdit.setText(self.experimentParameters['sg_port'])
+        self.sgSerialPortEdit.setText(self.experimentParameters['sg_ip'])
 
         def change_CNC_Port(port):
             self.experimentParameters["cnc_port"] = port
@@ -189,7 +189,7 @@ class Gui(QMainWindow, MainWindow):
         self.sgSendButton.clicked.connect(self.sendSignalToSignalGenerator)
 
         #self.osc.connect(self.experimentParameters['osc_ip'])
-        #self.sg.connect(self.experimentParameters['sg_port'])
+        #self.sg.connect(self.experimentParameters['sg_ip'])
 
         self.destroyed.connect(self.closeRessources)
 
@@ -235,7 +235,7 @@ class Gui(QMainWindow, MainWindow):
          """
         if self.isSignalGeneratorConnected == False:
             try:
-                self.sg.connect(self.experimentParameters['sg_port'])
+                self.sg.connect(self.experimentParameters['sg_ip'])
                 self.isSignalGeneratorConnected = True
                 self.sgConnectButton.setText("Disconnect")
             except Exception as e:
@@ -371,7 +371,7 @@ class Gui(QMainWindow, MainWindow):
         try:
             self.experimentParameters = ExpParamIO.toExpParamsFromJSON(self.jsonFormatParameters.toPlainText())
             self.oscilloscopeIPEdit.setText(self.experimentParameters['osc_ip'])
-            self.sgSerialPortEdit.setText(self.experimentParameters['sg_port'])
+            self.sgSerialPortEdit.setText(self.experimentParameters['sg_ip'])
             self.portCNCEdit.setText(self.experimentParameters['cnc_port'])
         except json.JSONDecodeError as e:
             log.error(str(e))

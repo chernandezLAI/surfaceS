@@ -60,6 +60,7 @@ import Oscilloscope as Osc
 import SignalGeneratorTCPIP as SG
 import cnc as CNC
 import measure_vibrations as mv
+import acquire_impacts as ai
 import mainPlot
 import ExperimentParametersIO as ExpParamIO
 import MeasureDataset
@@ -153,6 +154,7 @@ class Gui(QMainWindow, MainWindow):
         self.setStartCoordinatesButton.clicked.connect(setStartCoordinates)
 
         self.startMeasuringButton.clicked.connect(self.startMeasuring)
+        self.startAcquiringButton.clicked.connect(self.startAcquiring)
 
         self.createPlot()
 
@@ -443,6 +445,20 @@ class Gui(QMainWindow, MainWindow):
 
             self.data = MeasureDataset.MeasureDataset(rawData, experimentParameters=self.experimentParameters)
             self.data.save_to(self.experimentParameters['data_filename'])
+        else:
+            self.error("Connect all the instruments before launching the experiment", "Unable to start")
+
+    def startAcquiring(self):
+        """
+         Launches the acquisition process.
+
+         """
+        if self.isCncConnected and self.isSignalGeneratorConnected and self.isOscilloscopeConnected:
+            impactor = ai.SurfaceImpactGenerator(self.cnc, self.osc, self.sg, self.experimentParameters)
+            rawData = impactor.startAcquiring()
+
+#            self.data = MeasureDataset.MeasureDataset(rawData, experimentParameters=self.experimentParameters)
+#            self.data.save_to(self.experimentParameters['data_filename'])
         else:
             self.error("Connect all the instruments before launching the experiment", "Unable to start")
 

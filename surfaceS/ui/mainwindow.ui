@@ -39,7 +39,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="page">
        <property name="geometry">
@@ -193,55 +193,96 @@
        <attribute name="label">
         <string>Measurement toolbox</string>
        </attribute>
-       <layout class="QFormLayout" name="formLayout_3">
-        <item row="3" column="0">
-         <widget class="QLabel" name="label_5">
-          <property name="text">
-           <string>Start coordinates:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="1">
-         <widget class="QLineEdit" name="startMachineCoordinatesEdit">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="1">
-         <widget class="QPushButton" name="setStartCoordinatesButton">
-          <property name="text">
-           <string>Set start coordinates</string>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="0" colspan="2">
-         <widget class="QPlainTextEdit" name="jsonFormatParameters">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-            <horstretch>2</horstretch>
-            <verstretch>2</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>300</height>
-           </size>
-          </property>
-         </widget>
-        </item>
-        <item row="6" column="0">
-         <widget class="QCommandLinkButton" name="startMeasuringButton">
-          <property name="text">
-           <string>Start measuring</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
+       <widget class="QLabel" name="label_5">
+        <property name="geometry">
+         <rect>
+          <x>9</x>
+          <y>27</y>
+          <width>87</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Start coordinates:</string>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="startMachineCoordinatesEdit">
+        <property name="geometry">
+         <rect>
+          <x>187</x>
+          <y>27</y>
+          <width>301</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="setStartCoordinatesButton">
+        <property name="geometry">
+         <rect>
+          <x>187</x>
+          <y>53</y>
+          <width>301</width>
+          <height>23</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Set start coordinates</string>
+        </property>
+       </widget>
+       <widget class="QPlainTextEdit" name="jsonFormatParameters">
+        <property name="geometry">
+         <rect>
+          <x>9</x>
+          <y>82</y>
+          <width>481</width>
+          <height>501</height>
+         </rect>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>2</horstretch>
+          <verstretch>2</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>300</height>
+         </size>
+        </property>
+       </widget>
+       <widget class="QCommandLinkButton" name="startMeasuringButton">
+        <property name="geometry">
+         <rect>
+          <x>9</x>
+          <y>605</y>
+          <width>172</width>
+          <height>41</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Start measuring</string>
+        </property>
+       </widget>
+       <widget class="QCommandLinkButton" name="startAcquiringButton">
+        <property name="geometry">
+         <rect>
+          <x>320</x>
+          <y>600</y>
+          <width>172</width>
+          <height>41</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Start Acquisiton</string>
+        </property>
+       </widget>
       </widget>
      </widget>
     </item>
@@ -306,47 +347,13 @@
          <item>
           <layout class="QGridLayout" name="gridLayout_2">
            <item row="1" column="1">
-            <widget class="QPushButton" name="sgChooseFileButton">
-             <property name="text">
-              <string>Choose...</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="0">
-            <widget class="QLineEdit" name="sgSerialPortEdit">
-             <property name="readOnly">
-              <bool>true</bool>
-             </property>
-             <property name="placeholderText">
-              <string>serial port</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QLineEdit" name="sgFilePathEdit">
-             <property name="readOnly">
-              <bool>true</bool>
-             </property>
-             <property name="placeholderText">
-              <string>path</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="1">
-            <widget class="QPushButton" name="sgSendButton">
-             <property name="text">
-              <string>Send</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
             <widget class="QPushButton" name="sgConnectButton">
              <property name="text">
               <string>Connect</string>
              </property>
             </widget>
            </item>
-           <item row="2" column="0">
+           <item row="3" column="0">
             <widget class="QSpinBox" name="sgARBSelector">
              <property name="readOnly">
               <bool>false</bool>
@@ -362,6 +369,40 @@
              </property>
              <property name="maximum">
               <number>3</number>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QPushButton" name="sgSendButton">
+             <property name="text">
+              <string>Send</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLineEdit" name="sgFilePathEdit">
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+             <property name="placeholderText">
+              <string>path</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QPushButton" name="sgChooseFileButton">
+             <property name="text">
+              <string>Choose...</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLineEdit" name="sgSerialPortEdit">
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+             <property name="placeholderText">
+              <string>serial port</string>
              </property>
             </widget>
            </item>
@@ -384,49 +425,6 @@
         <layout class="QGridLayout" name="gridLayout_3">
          <item row="0" column="0">
           <layout class="QGridLayout" name="gridLayout">
-           <item row="1" column="1">
-            <widget class="QLineEdit" name="machineCoordinatesEdit">
-             <property name="readOnly">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="label">
-             <property name="text">
-              <string>Coordinates:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="0">
-            <widget class="QLineEdit" name="portCNCEdit">
-             <property name="placeholderText">
-              <string>serial port</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QPushButton" name="connectCNCButton">
-             <property name="text">
-              <string>Connect</string>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="0">
-            <widget class="QPushButton" name="goToWorkingZeroButton">
-             <property name="text">
-              <string>Go to (0;0;0)</string>
-             </property>
-            </widget>
-           </item>
-           <item row="4" column="0">
-            <widget class="QPushButton" name="zeroWorkingCoordinatesButton">
-             <property name="text">
-              <string>Zero working
-coordinates</string>
-             </property>
-            </widget>
-           </item>
            <item row="3" column="1" rowspan="2">
             <layout class="QGridLayout" name="gridLayout_4">
              <item row="0" column="2">
@@ -499,6 +497,49 @@ coordinates</string>
               </widget>
              </item>
             </layout>
+           </item>
+           <item row="4" column="0">
+            <widget class="QPushButton" name="zeroWorkingCoordinatesButton">
+             <property name="text">
+              <string>Zero working
+coordinates</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLineEdit" name="machineCoordinatesEdit">
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QLineEdit" name="portCNCEdit">
+             <property name="placeholderText">
+              <string>serial port</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QPushButton" name="connectCNCButton">
+             <property name="text">
+              <string>Connect</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label">
+             <property name="text">
+              <string>Coordinates:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QPushButton" name="goToWorkingZeroButton">
+             <property name="text">
+              <string>Go to (0;0;0)</string>
+             </property>
+            </widget>
            </item>
           </layout>
          </item>

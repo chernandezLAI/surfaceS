@@ -53,9 +53,11 @@ def getDefaultParameters():
     experimentParameters['step_y'] = 10.0
     experimentParameters['sg_port'] = "COM6"
     experimentParameters['sg_ip'] = "128.178.201.37"
-    experimentParameters['wave_type'] = "SINE"
-    experimentParameters['frequency'] = 10000
+    experimentParameters['wave_type'] = "PULSE"
+    experimentParameters['frequency'] = 5
     experimentParameters['channel_sg'] = 1
+    experimentParameters['pulse_ampVPP_sg'] = 5
+    experimentParameters['pulse_width_sg'] = 0.04
     experimentParameters['osc_ip'] = "128.178.201.12"
     experimentParameters['vibrometer_channel'] = 2
     experimentParameters['reference_channel'] = 1

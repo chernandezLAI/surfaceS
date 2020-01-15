@@ -186,6 +186,8 @@ class SurfaceImpactGenerator():
             time.sleep(self.experimentParameters['delay_before_measuring'])
             self.signalGenerator.burst()
             time.sleep(self.experimentParameters['time_division']*0.01) # Time in ms
+            tmpData = self.osc.acquire(readOnly=True, channel=self.experimentParameters['vibrometer_channel'])
+            data[f'{targetX},{targetY}'] = tmpData['data']
 
             # Count the number of point acquired
             xpoint += xIncrement
@@ -200,9 +202,6 @@ class SurfaceImpactGenerator():
             targetY = ypoint*self.experimentParameters['step_y'] + self.startY
             log.debug(f'Going to {targetX},{targetY}')
             self.cnc.goTo(x=targetX, y=targetY, event=positionLock)
-
-            tmpData = self.osc.acquire(readOnly=True, channel=self.experimentParameters['vibrometer_channel'])
-            data[f'{targetX},{targetY}'] = tmpData['data']
 
             log.info("Acquisiton done !")
 

@@ -457,8 +457,8 @@ class Gui(QMainWindow, MainWindow):
             impactor = ai.SurfaceImpactGenerator(self.cnc, self.osc, self.sg, self.experimentParameters)
             rawData = impactor.startAcquiring()
 
-#            self.data = MeasureDataset.MeasureDataset(rawData, experimentParameters=self.experimentParameters)
-#            self.data.save_to(self.experimentParameters['data_filename'])
+            self.data = MeasureDataset.MeasureDataset(rawData, experimentParameters=self.experimentParameters)
+            self.data.save_to(self.experimentParameters['data_filename'])
         else:
             self.error("Connect all the instruments before launching the experiment", "Unable to start")
 

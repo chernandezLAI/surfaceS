@@ -85,6 +85,7 @@ class Oscilloscope():
         self.write("COMM_FORMAT OFF,WORD,BIN")
         log.debug("HEADER disabled")
         self.write(r"""vbs 'app.settodefaultsetup' """)
+        self.write("COMM_FORMAT OFF,WORD,BIN")
 
     def printID(self):
         """

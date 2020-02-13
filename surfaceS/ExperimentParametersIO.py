@@ -43,7 +43,7 @@ def getDefaultParameters():
      """
     experimentParameters = {}
     experimentParameters['cnc_port'] = "COM10"
-    experimentParameters['delay_before_measuring'] = 0.5
+    experimentParameters['delay_before_measuring'] = 1
     experimentParameters['start_x'] = -270.0
     experimentParameters['start_y'] = -232.0
     experimentParameters['start_z'] = -2.003
@@ -64,12 +64,12 @@ def getDefaultParameters():
     experimentParameters['reference_channel'] = 1
     experimentParameters['unit_time_division'] = "MS"
     experimentParameters['unit_volt_division'] = "MV"
-    experimentParameters['volt_division_vibrometer'] = 5000
+    experimentParameters['volt_division_vibrometer'] = 10000
     experimentParameters['volt_division_reference'] = 2500
-    experimentParameters['time_division'] = 10
+    experimentParameters['time_division'] = 20
     experimentParameters['trigger_level'] = 2500
     experimentParameters['trigger_mode'] = "SINGLE"
-    experimentParameters['trigger_delay'] = -0.05
+    experimentParameters['trigger_delay'] = -0.1
     experimentParameters['data_filename'] = "data.csv"
 
     return experimentParameters

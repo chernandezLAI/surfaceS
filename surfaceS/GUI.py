@@ -259,7 +259,7 @@ class Gui(QMainWindow, MainWindow):
         log.debug("Selecting signal file")
         def setFile(filePath):
             self.signalPath = filePath
-            self.signal = np.loadtxt(filePath, dtype=np.uint16, delimiter=",")
+            self.signal = np.loadtxt(filePath, delimiter=",")
             if len(self.signal.shape) == 1:
                 self.signalPlot.plot(self.signal)
                 self.sgFilePathEdit.setText(filePath)

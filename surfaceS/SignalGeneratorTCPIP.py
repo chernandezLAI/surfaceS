@@ -379,7 +379,7 @@ class SignalGeneratorTCPIP():
          .. seealso:: setWave()
          """
 
-        data = np.interp(data, (data.min(), data.max()), (0, 16383)) #Scale the data to the range o the Signal generator
+        data = np.interp(data, [data.min(), data.max()], [0, 16381]) #Scale the data to the range o the Signal generator
         header = "ARB" + str(register) + " " # TODO: add security for register numbers
 
         size=data.size

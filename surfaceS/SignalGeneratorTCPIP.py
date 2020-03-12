@@ -477,6 +477,77 @@ class SignalGeneratorTCPIP():
 
         log.info("Config for burst mode done.")
 
+    def setTriggerSignal(self, OUTchannel:int=1):
+        """
+         Set the signal generator to output a short squared pulse in the other
+         output (The opposite to the one set in setChannel()) to trigger the acquisition
+         on the other devices. The trigger signal is a pulse of 5 v and has a pulse length of 10 ms
+
+         :param channel: Port that was selected for the main output of the signal
+          generator with setChannel().
+         :type channel: int
+
+         :Example:
+
+         >>> import SignalGeneratorTCPIP as SG
+         >>> signalG = SG.SignalGeneratorTCPIP()
+         >>> signalG.connect()
+         >>> signalG.setChannel(2)
+         >>> signalG.setTriggerSignal(2)
+
+
+         .. seealso:: setChannel()
+        """
+        if OUTchannel == 1:
+            TRIGchannel = 2
+        else:
+            TRIGchannel = 1
+        # Select the channel for the trigger OUTPUT
+        self.setChannel(TRIGchannel)
+        # SetUp the trigger signal
+        self.setWave("PULSE")
+        self.setPulse(5.0, 2.5, "VPP", 1.25, 0.01)
+
+        # Set burst count
+        cmd = "BSTCOUNT"
+        cmd = cmd + " " + str(1)
+        self.sg.write(cmd)
+        log.debug(cmd + " : OK\n")
+
+        # Set burst mode to N cycle (N=burstCount)
+        cmd = "BST NCYC"
+        self.sg.write(cmd)
+        log.debug(cmd + " : OK\n")
+
+        # Set trigger source
+        cmd = "TRGSRC CRC"
+        self.sg.write(cmd)
+        log.debug(cmd + " : OK\n")
+
+        # Set trigger output (into burst module)
+        cmd = "TRGOUT BURST"
+        self.sg.write(cmd)
+        log.debug(cmd + " : OK\n")
+
+        # Activate synchronized output
+        cmd = "SYNCOUT ON"
+        self.sg.write(cmd)
+        log.debug(cmd + " : OK\n")
+
+        # Set synchronized output to burst mode
+        cmd = "SYNCTYPE BURST"
+        self.sg.write(cmd)
+        log.debug(cmd + " : OK\n")
+
+        # Set the equipment back to hte output channel.
+        self.setChannel(OUTchannel)
+
+        log.info("Config for additional trigger OK.")
+
+
+
+
+
     def burst(self):
         """
 

@@ -161,6 +161,7 @@ class SurfaceImpactGenerator():
         xpoint = 0
         ypoint = 0
         xIncrement = 1
+        actualSample = 1
 
         data = pd.DataFrame()
 
@@ -172,22 +173,34 @@ class SurfaceImpactGenerator():
         self.signalGenerator.setOutput(state=True)
 
         while acquiring:
-            log.debug("Start signal and acquisition")
+            log.debug(f'Start signal and acquisition in position {targetX},{targetY}')
             #time.sleep(2)
-            self.osc.setTrigger(self.experimentParameters['trigger_level'], \
-                                self.experimentParameters['trigger_delay'], \
-                                self.experimentParameters['reference_channel'], \
-                                self.experimentParameters['trigger_mode'], \
-                                self.experimentParameters['unit_volt_division'])
+
             log.debug("Waiting to be in position...")
             positionLock.wait()
             log.debug("In position !")
             positionLock.clear()
-            time.sleep(self.experimentParameters['delay_before_measuring'])
-            self.signalGenerator.burst()
-            time.sleep(self.experimentParameters['time_division']*0.01) # Time in ms
-            tmpData = self.osc.acquire(readOnly=True, channel=self.experimentParameters['vibrometer_channel'])
-            data[f'{targetX},{targetY}'] = tmpData['data']
+            self.signalGenerator.burst() #IMPORTANT Forced Impact to lubrify the Pneumatic piston NOT RECORDED
+            time.sleep(self.experimentParameters['delay_before_measuring']/2) # Wait half of the delay_before_measuring time
+            while actualSample <= self.experimentParameters['samples_per_point']: # While Sample Number minor or equal to Number of samples per point
+                time.sleep(self.experimentParameters['delay_before_measuring'])
+                self.osc.setTrigger(self.experimentParameters['trigger_level'], \
+                                    self.experimentParameters['trigger_delay'], \
+                                    self.experimentParameters['reference_channel'], \
+                                    self.experimentParameters['trigger_mode'], \
+                                    self.experimentParameters['unit_volt_division'])
+
+                self.signalGenerator.burst()
+                time.sleep(self.experimentParameters['time_division']*0.01) # Time in ms
+                tmpData = self.osc.acquire(readOnly=True, channel=self.experimentParameters['vibrometer_channel'])
+                data[f'X{targetX}_Y{targetY}_S{actualSample}'] = tmpData['data']
+                log.debug(f'Acquired Sample Number {actualSample} in position {targetX},{targetY}')
+                #Save Data in a Temporal File
+                data.to_pickle("dataTEMP.pkl")
+
+                actualSample += 1 # Increment Sample number counter
+
+            actualSample = 1 # Reset Sample number counter
 
             # Count the number of point acquired
             xpoint += xIncrement
@@ -207,5 +220,4 @@ class SurfaceImpactGenerator():
 
         self.signalGenerator.setOutput(state=False)
 
-        #data.to_csv("data1.csv")
         return data

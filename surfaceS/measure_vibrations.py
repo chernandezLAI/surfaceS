@@ -117,6 +117,7 @@ class SurfaceVibrationsScanner():
         self.signalGenerator.setChannel(self.channelOnSG)
         self.signalGenerator.setFrequency(self.frequency)
         self.signalGenerator.setWave(self.waveType, 1)
+        self.signalGenerator.setTriggerSignal(self.channelOnSG)
         self.signalGenerator.setBurstMode()
 
         self.osc.setGrid(self.experimentParameters['time_division'], \
@@ -160,6 +161,13 @@ class SurfaceVibrationsScanner():
         self.cnc.goTo(x=self.startX, y=self.startY, event=positionLock)
 
         self.signalGenerator.setOutput(state=True)
+        if self.channelOnSG == 1:
+            self.TRIGchannel = 2
+        else:
+            self.TRIGchannel = 1
+        self.signalGenerator.setChannel(self.TRIGchannel)
+        self.signalGenerator.setOutput(state=True)
+        self.signalGenerator.setChannel(self.channelOnSG)
 
         while measuring:
             log.debug("Start signal and acquisition")
@@ -197,6 +205,13 @@ class SurfaceVibrationsScanner():
             log.info("Measure done !")
 
         self.signalGenerator.setOutput(state=False)
+        if self.channelOnSG == 1:
+            self.TRIGchannel = 2
+        else:
+            self.TRIGchannel = 1
+        self.signalGenerator.setChannel(self.TRIGchannel)
+        self.signalGenerator.setOutput(state=False)
+        self.signalGenerator.setChannel(self.channelOnSG)
 
         #data.to_csv("data1.csv")
         return data

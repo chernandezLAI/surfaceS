@@ -117,6 +117,7 @@ class SurfaceVibrationsScanner():
         self.signalGenerator.setChannel(self.channelOnSG)
         self.signalGenerator.setFrequency(self.frequency)
         self.signalGenerator.setWave(self.waveType, 1)
+        self.signalGenerator.setAmplitude(5.0)
         self.signalGenerator.setTriggerSignal(self.channelOnSG)
         self.signalGenerator.setBurstMode()
 

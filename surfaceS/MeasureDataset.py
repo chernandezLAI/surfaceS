@@ -45,7 +45,7 @@ import re
 import ExperimentParametersIO as ExpParamIO
 
 
-VIBROMETER_HEIGHT_VOLTAGE = 1 # UNIT IN MICROMETER !!!
+VIBROMETER_HEIGHT_VOLTAGE = 0.001 # UNIT IN MICROMETER 1 um/V if voltage volt_division_vibrometer is V or 0.001 um/mV if voltage volt_division_vibrometer is MV   !!!
 
 NUMBER_BIT_OSC_DATA = 16
 

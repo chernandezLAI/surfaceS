@@ -202,9 +202,12 @@ class SurfaceVibrationsScanner():
 
             tmpData = self.osc.acquire(readOnly=True, channel=self.experimentParameters['vibrometer_channel'])
             data[f'{targetX},{targetY}'] = tmpData['data']
+            log.debug(f' Measurement done in position {targetX},{targetY}')
+            #Save Data in a Temporal File
+            data.to_pickle("EXPdataTEMP.pkl")
 
-            log.info("Measure done !")
 
+        log.info("Measurement done !")
         self.signalGenerator.setOutput(state=False)
         if self.channelOnSG == 1:
             self.TRIGchannel = 2

@@ -55,6 +55,8 @@ NUMBER_VOLTAGE_DIVISION_OSC = 8
 
 NUMBER_TIME_DIVISION_OSC = 10
 
+TIME_UNIT_SCALE = 1000 # 1 if time unit_time_division is S or 1000 if if time unit_time_division is MS !!!
+
 class MeasureDataset():
     def __init__(self, data=None, experimentParameters=ExpParamIO.getDefaultParameters()):
         self.experimentParameters = experimentParameters
@@ -66,7 +68,7 @@ class MeasureDataset():
 
         self.zScale = (NUMBER_VOLTAGE_DIVISION_OSC * self.experimentParameters['volt_division_vibrometer']*VIBROMETER_HEIGHT_VOLTAGE)/MAX_VALUE_OSC_DATA
 
-        self.timeScale = (NUMBER_TIME_DIVISION_OSC*self.experimentParameters['time_division'])/self.numberOfSamples
+        self.timeScale = (NUMBER_TIME_DIVISION_OSC*self.experimentParameters['time_division'])/(self.numberOfSamples*TIME_UNIT_SCALE)
 
     def set_data(self, data):
         """

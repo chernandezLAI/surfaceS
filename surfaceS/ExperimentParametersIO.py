@@ -44,17 +44,17 @@ def getDefaultParameters():
     experimentParameters = {}
     experimentParameters['cnc_port'] = "COM10"
     experimentParameters['delay_before_measuring'] = 1
-    experimentParameters['start_x'] = -270.0
-    experimentParameters['start_y'] = -232.0
-    experimentParameters['start_z'] = -2.003
-    experimentParameters['nb_point_x'] = 3
+    experimentParameters['start_x'] = 0.0
+    experimentParameters['start_y'] = 0.0
+    experimentParameters['start_z'] = 0.0
+    experimentParameters['nb_point_x'] = 4
     experimentParameters['nb_point_y'] = 0
-    experimentParameters['samples_per_point'] = 4
-    experimentParameters['step_x'] = 10.0
-    experimentParameters['step_y'] = 10.0
+    experimentParameters['samples_per_point'] = 30
+    experimentParameters['step_x'] = 2.0
+    experimentParameters['step_y'] = 2.0
     experimentParameters['sg_port'] = "COM6"
     experimentParameters['sg_ip'] = "128.178.201.37"
-    experimentParameters['wave_type'] = "PULSE"
+    experimentParameters['wave_type'] = "ARB"
     experimentParameters['frequency'] = 5
     experimentParameters['channel_sg'] = 1
     experimentParameters['pulse_ampVPP_sg'] = 5
@@ -64,13 +64,13 @@ def getDefaultParameters():
     experimentParameters['reference_channel'] = 1
     experimentParameters['unit_time_division'] = "MS"
     experimentParameters['unit_volt_division'] = "MV"
-    experimentParameters['volt_division_vibrometer'] = 10000
+    experimentParameters['volt_division_vibrometer'] = 30
     experimentParameters['volt_division_reference'] = 2500
     experimentParameters['time_division'] = 20
     experimentParameters['trigger_level'] = 2500
     experimentParameters['trigger_mode'] = "SINGLE"
     experimentParameters['trigger_delay'] = -0.1
-    experimentParameters['data_filename'] = "data.csv"
+    experimentParameters['data_filename'] = "EXP12.json"
 
     return experimentParameters
 

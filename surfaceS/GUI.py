@@ -492,7 +492,7 @@ class Gui(QMainWindow, MainWindow):
 
          """
         self.mainPlot.update_plot(time=fraction)
-        time = self.data.get_time_scale()*fraction/999
+        time = self.data.get_time_scale()*self.data.numberOfSamples*fraction/999
         self.timeEdit.setText(f'{time} s')
 
     def update_plot_limits(self):

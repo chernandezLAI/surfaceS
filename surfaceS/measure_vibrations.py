@@ -100,6 +100,7 @@ class SurfaceVibrationsScanner():
         self.channelOnSG = self.experimentParameters['channel_sg']
         self.frequency = self.experimentParameters['frequency']
         self.waveType = self.experimentParameters['wave_type']
+        self.triggerPulseDelaySG = self.experimentParameters['Trigger_pulse_delay_sg']
         self.nbPointX = self.experimentParameters['nb_point_x']
         self.nbPointY = self.experimentParameters['nb_point_y']
         self.startX = self.experimentParameters['start_x']
@@ -118,8 +119,11 @@ class SurfaceVibrationsScanner():
         self.signalGenerator.setFrequency(self.frequency)
         self.signalGenerator.setWave(self.waveType, 1)
         self.signalGenerator.setAmplitude(5.0)
-        self.signalGenerator.setTriggerSignal(self.channelOnSG)
-        self.signalGenerator.setBurstMode()
+        self.signalGenerator.setBurstMode(1)
+        self.signalGenerator.setTriggerSignal(self.channelOnSG, self.triggerPulseDelaySG)
+
+        log.info("Config for additional trigger OK.")
+        self.signalGenerator.beep()
 
         self.osc.setGrid(self.experimentParameters['time_division'], \
                          self.experimentParameters['volt_division_reference'], \
@@ -184,6 +188,7 @@ class SurfaceVibrationsScanner():
             positionLock.clear()
             time.sleep(self.experimentParameters['delay_before_measuring'])
             self.signalGenerator.burst()
+            time.sleep(self.experimentParameters['delay_before_measuring'])
             time.sleep(self.experimentParameters['time_division']*0.01) # Time in ms
 
             # Count the number of point measured

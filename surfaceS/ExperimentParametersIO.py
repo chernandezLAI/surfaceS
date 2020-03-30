@@ -59,6 +59,7 @@ def getDefaultParameters():
     experimentParameters['channel_sg'] = 1
     experimentParameters['pulse_ampVPP_sg'] = 5
     experimentParameters['pulse_width_sg'] = 0.015
+    experimentParameters['Trigger_pulse_delay_sg'] = 0.0
     experimentParameters['osc_ip'] = "128.178.201.12"
     experimentParameters['vibrometer_channel'] = 2
     experimentParameters['reference_channel'] = 1

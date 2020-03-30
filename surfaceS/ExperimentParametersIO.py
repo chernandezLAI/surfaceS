@@ -47,7 +47,7 @@ def getDefaultParameters():
     experimentParameters['start_x'] = 0.0
     experimentParameters['start_y'] = 0.0
     experimentParameters['start_z'] = 0.0
-    experimentParameters['nb_point_x'] = 4
+    experimentParameters['nb_point_x'] = 1
     experimentParameters['nb_point_y'] = 0
     experimentParameters['samples_per_point'] = 30
     experimentParameters['step_x'] = 2.0

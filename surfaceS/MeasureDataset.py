@@ -67,7 +67,7 @@ class MeasureDataset():
         self.height_coefficient = 0
 
         #self.zScale = (NUMBER_VOLTAGE_DIVISION_OSC * self.experimentParameters['volt_division_vibrometer']*VIBROMETER_HEIGHT_VOLTAGE)/MAX_VALUE_OSC_DATA
-        self.zScale = 3.90625e-06 # 3.90625e-06 Valid when Voltage division 30 mV / 0.0013020799932065218 Valid when Voltage division 10000 mV
+        self.zScale = 3.90625e-06 # 3.90625e-06 Valid when Voltage division 30 mV / 0.0013020799932065218 Valid when Voltage division 10000 mV / 1.302080078125e-05 Valid when Voltage division 100 mV / 6.510419921875e-05  Valid when Voltage division 500 mV
 
         self.timeScale = (NUMBER_TIME_DIVISION_OSC*self.experimentParameters['time_division'])/(self.numberOfSamples*TIME_UNIT_SCALE)
 

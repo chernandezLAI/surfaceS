@@ -44,9 +44,9 @@ def getDefaultParameters():
     experimentParameters = {}
     experimentParameters['cnc_port'] = "COM10"
     experimentParameters['delay_before_measuring'] = 1
-    experimentParameters['start_x'] = 0.0
-    experimentParameters['start_y'] = 0.0
-    experimentParameters['start_z'] = 0.0
+    experimentParameters['start_x'] = -366.75
+    experimentParameters['start_y'] = -117.0
+    experimentParameters['start_z'] = -5.7
     experimentParameters['nb_point_x'] = 1
     experimentParameters['nb_point_y'] = 0
     experimentParameters['samples_per_point'] = 30
@@ -60,6 +60,9 @@ def getDefaultParameters():
     experimentParameters['pulse_ampVPP_sg'] = 5
     experimentParameters['pulse_width_sg'] = 0.015
     experimentParameters['Trigger_pulse_delay_sg'] = 0.0
+    experimentParameters['frequencyStart'] = 1000.0
+    experimentParameters['frequencyEnd'] = 100000.0
+    experimentParameters['sweepTime'] = 0.5
     experimentParameters['osc_ip'] = "128.178.201.12"
     experimentParameters['vibrometer_channel'] = 2
     experimentParameters['reference_channel'] = 1

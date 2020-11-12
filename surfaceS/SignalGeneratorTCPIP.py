@@ -281,6 +281,81 @@ class SignalGeneratorTCPIP():
 
         log.info("Config pulse done.")
 
+    def SetSineSweep_withTrigger(self, frequencyStart:float=1000.0, frequencyEnd:float=100000.0, sweepTime:float=0.5, OUTchannel:int=1,triggerPulseDelay:float=0.00):
+        """
+            Set a sineSweep experiment. This function setsUp the SG to output a sine sweep starting at frequencyMin and going up to frequencyMax, the sweep will take sweepTime seconds.
+            When the manual trigger is excecuted Channel 1 of the SG will output once the sineSweep and Channel 2 will output a 5v triggering signal.
+
+            NOTE: you need to call the burst function on the secondary channel the trigger channel NOT i the OUTchannel
+
+            :param frequencyStart: Start Frequency for the sine sweep Hz, by default it is 1000 Hz.
+            :type frequencyStart: float
+            :param frequencyEnd: End Frequency for the sine sweep Hz, by default it is 100000 Hz.
+            :type frequencyEnd: float
+            :param sweepTime: Duartion in seconds for the sine sweep,by default it is 0.5 s.
+            :type sweepTime: float
+            :param OUTchannel: Port that was selected for the main output of the signal
+             generator with setChannel().
+            :type OUTchannel: int
+            :param triggerPulseDelay: width of the trigger pulse in seconds.
+            :type triggerPulseDelay: float
+
+            :Example:
+
+            >>> import SignalGeneratorTCPIP as SG
+            >>> signalG = SG.SignalGeneratorTCPIP()
+            >>> signalG.connect()
+            >>> signalG.SetSineSweep_withTrigger(1000.0, 50000.0, 0.5, 1, 0.0)
+        """
+        self.setChannel(OUTchannel)
+
+        cmd = "SWPMODE TRIG"
+        self.sg.write(cmd)
+        log.debug("Set the sweep mode to trigger ")
+
+        self.setTrigger("CRC")
+
+        cmd = "SWPTYPE"
+        cmd = cmd + " " + "LINUP"
+        self.sg.write(cmd)
+        log.debug("Set the sweep mode to LINUP ")
+
+        cmd = "SWPBEGFREQ"
+        cmd = cmd + " " + str(frequencyStart)
+        self.sg.write(cmd)
+        log.debug("Set the sweep Start frequency to " + str(frequencyStart) + " Hz : " + cmd)
+
+        cmd = "SWPENDFREQ"
+        cmd = cmd + " " + str(frequencyEnd)
+        self.sg.write(cmd)
+        log.debug("Set the sweep Stop frequency to " + str(frequencyEnd) + " Hz : " + cmd)
+
+        cmd = "SWPTIME"
+        cmd = cmd + " " + str(sweepTime)
+        self.sg.write(cmd)
+        log.debug("Set the sweep time to " + str(sweepTime) + " seconds : " + cmd)
+
+        self.setAmplitude(1.0)
+
+        cmd = "SWP ON"
+        self.sg.write(cmd)
+        log.debug("Set Sweep to ON")
+
+        log.info("Set Sine Sweep OK.")
+
+        if OUTchannel == 1:
+            TRIGchannel = 2
+        else:
+            TRIGchannel = 1
+        # Select the channel for the trigger OUTPUT
+        self.setChannel(TRIGchannel)
+        # SetUp the trigger signal
+        self.setTriggerSignal(OUTchannel,triggerPulseDelay)
+        self.setChannel(TRIGchannel)
+        self.setTrigger("MAN")
+
+        log.info("Config for trigger OK.")
+
     def setAmplitude(self, amplitude:float=1.0, unit="VPP", dcoffs:float=0.0):
         """
          Set the amplitude of the signal.
@@ -516,10 +591,6 @@ class SignalGeneratorTCPIP():
         self.setChannel(OUTchannel)
 
         log.info("Config for additional trigger OK.")
-
-
-
-
 
     def burst(self):
         """

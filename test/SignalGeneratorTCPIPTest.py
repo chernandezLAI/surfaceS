@@ -4,6 +4,8 @@ import numpy as np
 signalG = SG.SignalGeneratorTCPIP()
 signalG.connect()
 signalG.beep()
+signalG.SetSineSweep_withTrigger(1000.0, 50000.0, 0.5, 1, 0.0)
+
 signalG.setChannel(2)
 signalG.setOutput(True)
 signalG.setFrequency(200)
@@ -26,7 +28,11 @@ for i in range(0, size-1):
     data[i] = 0.03*np.square(i)+0.01*i+1
 signalG.setArbitraryWaveform(data, register=3, name="TEST3")
 
+signalG.setTriggerSignal(1,0.0)
 
+signalG.SetSineSweep_withTrigger(1000.0, 50000.0, 0.5, 1, 0.0)
+
+signalG.disconnect()
 # TO DEBUG THE BINARY VALUE Send
 
 import visa

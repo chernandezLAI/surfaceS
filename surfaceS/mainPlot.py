@@ -51,8 +51,8 @@ from matplotlib.figure import Figure
 
 import MeasureDataset
 
-Z_LIM_UP_DEFAULT = 50
-Z_LIM_DOWN_DEFAULT = -50
+Z_LIM_UP_DEFAULT = 0.1
+Z_LIM_DOWN_DEFAULT = -0.1
 
 class MainPlot(FigureCanvas):
     def __init__(self, parent=None, width=5, height=4, dpi=100):
@@ -120,7 +120,7 @@ class MainPlot(FigureCanvas):
         self.ready = True
         self.update_plot(0)
 
-    def update_plot(self, time=0, totalTime=1000):
+    def update_plot(self, time=0, totalTime=999):
         """
         Update the plot to display a given time. The time will be computed from $time/totalTime$
 
@@ -141,14 +141,19 @@ class MainPlot(FigureCanvas):
         for uX in self.listX:
             tt = np.where(self.x==uX)
             j = 0
+            #log.debug('OK 1')
             for uY in self.listY:
                 tz = np.where(self.y==uY)
                 zidx = self.findCoincidentIdx(tt[0], tz[0])
+                #log.debug('OK 2')
                 if zidx >= 0:
                     #log.debug(f'Registering...')
+                    #log.debug(f'OK 3 t: {t} i:{i} j: {j} tt: {tt} tz: {tz} zidx: {zidx}')
                     self.z[i][j] = self.data.iloc[t,zidx+1]*self.dataset.zScale
                 else:
+                    #log.debug('OK 4')
                     self.z[i][j] = 0
+
                 j = j+1
             i = i+1
 

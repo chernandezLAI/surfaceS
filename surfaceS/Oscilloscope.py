@@ -160,7 +160,7 @@ class Oscilloscope():
         self.write(f'TRIG_DELAY {triggerDelay}')
         self.write(f'TRIG_MODE {triggerMode}')
 
-    def setGrid(self, timeDivision:float=0.0001,voltDivision:float=1.0,channel:int=1,unitVoltDivision:str="V",unitTimeDivision:str="S"):
+    def setGrid(self, timeDivision:float=0.0001,voltDivision:float=1.0,channel:int=1,unitVoltDivision:str="V",unitTimeDivision:str="S", OSCNumSamples:str="50K"):
         """
         Changes grid parameters
 
@@ -174,6 +174,8 @@ class Oscilloscope():
         :type unitVoltDivision: string
         :param unitTimeDivision: Unit to apply to timeDivision (S, MS, US, NS)
         :type unitTimeDivision: string
+        :param OSCNumSamples: Vaue to set the maximum memory length (number of samples) used for acquisition {500, 1000, 2500, 5000, 10K, 25K, 50K, 100K, 250K, 500K, 1M, 2.5M, 5M, 10M}, the default is st to 50K.
+        :type OSCNumSamples: string
 
         """
 
@@ -182,7 +184,7 @@ class Oscilloscope():
         self.write(f'C{channel}:VOLT_DIV {voltDivision}{unitVoltDivision}')
         self.write(f'TIME_DIV {timeDivision}{unitTimeDivision}')
         self.write(f'C{channel}:TRACE ON')
-
+        self.write(f'MSIZ {OSCNumSamples}')
 
     def acquire(self, dataOnly:bool=False, numpyFormat:bool=True, channel:int=1, forceAcquisition:bool=False, readOnly:bool=False):
         """

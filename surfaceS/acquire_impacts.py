@@ -133,12 +133,14 @@ class SurfaceImpactGenerator():
                          self.experimentParameters['volt_division_reference'], \
                          self.experimentParameters['reference_channel'], \
                          self.experimentParameters['unit_volt_division'], \
-                         self.experimentParameters['unit_time_division'])
+                         self.experimentParameters['unit_time_division'], \
+                         self.experimentParameters['OSCNumSamples'])
         self.osc.setGrid(self.experimentParameters['time_division'], \
                          self.experimentParameters['volt_division_vibrometer'], \
                          self.experimentParameters['vibrometer_channel'], \
                          self.experimentParameters['unit_volt_division'], \
-                         self.experimentParameters['unit_time_division'])
+                         self.experimentParameters['unit_time_division'], \
+                         self.experimentParameters['OSCNumSamples'])
         self.osc.setTrigger(self.experimentParameters['trigger_level'], \
                             self.experimentParameters['trigger_delay'], \
                             self.experimentParameters['reference_channel'], \

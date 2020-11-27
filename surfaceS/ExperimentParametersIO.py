@@ -61,9 +61,10 @@ def getDefaultParameters():
     experimentParameters['pulse_width_sg'] = 0.015
     experimentParameters['Trigger_pulse_delay_sg'] = 0.0
     experimentParameters['frequencyStart'] = 1000.0
-    experimentParameters['frequencyEnd'] = 100000.0
+    experimentParameters['frequencyEnd'] = 50000.0
     experimentParameters['sweepTime'] = 0.5
     experimentParameters['osc_ip'] = "128.178.201.12"
+    experimentParameters['OSCNumSamples'] = "50K"
     experimentParameters['vibrometer_channel'] = 2
     experimentParameters['reference_channel'] = 1
     experimentParameters['unit_time_division'] = "MS"

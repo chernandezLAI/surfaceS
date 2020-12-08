@@ -47,7 +47,7 @@
          <x>0</x>
          <y>0</y>
          <width>500</width>
-         <height>655</height>
+         <height>684</height>
         </rect>
        </property>
        <attribute name="label">
@@ -187,7 +187,7 @@
          <x>0</x>
          <y>0</y>
          <width>500</width>
-         <height>655</height>
+         <height>684</height>
         </rect>
        </property>
        <attribute name="label">
@@ -267,20 +267,33 @@
          </rect>
         </property>
         <property name="text">
-         <string>Start measuring</string>
+         <string>Start Measuring</string>
         </property>
        </widget>
        <widget class="QCommandLinkButton" name="startAcquiringButton">
         <property name="geometry">
          <rect>
-          <x>320</x>
+          <x>290</x>
           <y>600</y>
-          <width>172</width>
+          <width>181</width>
           <height>41</height>
          </rect>
         </property>
         <property name="text">
-         <string>Start Acquisiton</string>
+         <string>Start Impact Acquisiton</string>
+        </property>
+       </widget>
+       <widget class="QCommandLinkButton" name="startAcquiringSineSweepButton">
+        <property name="geometry">
+         <rect>
+          <x>290</x>
+          <y>640</y>
+          <width>181</width>
+          <height>41</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Start SineSweep Acquisiton</string>
         </property>
        </widget>
       </widget>
@@ -556,7 +569,7 @@ coordinates</string>
      <x>0</x>
      <y>0</y>
      <width>1312</width>
-     <height>21</height>
+     <height>18</height>
     </rect>
    </property>
    <widget class="QMenu" name="menusurfaceS">

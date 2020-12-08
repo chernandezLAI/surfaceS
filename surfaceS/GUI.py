@@ -61,6 +61,7 @@ import SignalGeneratorTCPIP as SG
 import cnc as CNC
 import measure_vibrations as mv
 import acquire_impacts as ai
+import acquire_SineSweep as ass
 import mainPlot
 import ExperimentParametersIO as ExpParamIO
 import MeasureDataset
@@ -155,6 +156,7 @@ class Gui(QMainWindow, MainWindow):
 
         self.startMeasuringButton.clicked.connect(self.startMeasuring)
         self.startAcquiringButton.clicked.connect(self.startAcquiring)
+        self.startAcquiringSineSweepButton.clicked.connect(self.startAcquiringSineSweep)
 
         self.createPlot()
 
@@ -456,6 +458,20 @@ class Gui(QMainWindow, MainWindow):
         if self.isCncConnected and self.isSignalGeneratorConnected and self.isOscilloscopeConnected:
             impactor = ai.SurfaceImpactGenerator(self.cnc, self.osc, self.sg, self.experimentParameters)
             rawData = impactor.startAcquiring()
+
+            self.data = MeasureDataset.MeasureDataset(rawData, experimentParameters=self.experimentParameters)
+            self.data.save_to(self.experimentParameters['data_filename'])
+        else:
+            self.error("Connect all the instruments before launching the experiment", "Unable to start")
+
+    def startAcquiringSineSweep(self):
+        """
+         Launches the sine sweep acquisition process.
+
+         """
+        if self.isCncConnected and self.isSignalGeneratorConnected and self.isOscilloscopeConnected:
+            SineSweeper = ass.SurfaceSineSweep(self.cnc, self.osc, self.sg, self.experimentParameters)
+            rawData = SineSweeper.startAcquiringSineSweep()
 
             self.data = MeasureDataset.MeasureDataset(rawData, experimentParameters=self.experimentParameters)
             self.data.save_to(self.experimentParameters['data_filename'])
